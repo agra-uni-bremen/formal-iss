@@ -19,6 +19,7 @@ executable formal-iss
     default-language: GHC2021
 
     other-modules:    Expression
+                    , Interface
 
     build-depends:    base       ^>= 4.17.0.0
                     , libriscv   ^>= 0.1.0.0
