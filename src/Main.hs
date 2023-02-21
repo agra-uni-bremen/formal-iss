@@ -2,7 +2,7 @@ module Main where
 
 import Language.C
 import LibRISCV.Spec.Expr
-import Expression
+import Generator
 
 main :: IO ()
 main = do

@@ -18,9 +18,10 @@ executable formal-iss
     hs-source-dirs:   src
     default-language: GHC2021
 
-    other-modules:    Expression
+    other-modules:    Generator
                     , Interface
 
-    build-depends:    base       ^>= 4.17.0.0
-                    , libriscv   ^>= 0.1.0.0
-                    , language-c ^>= 0.9.2
+    build-depends:    base         ^>= 4.17.0.0
+                    , libriscv     ^>= 0.1.0.0
+                    , language-c   ^>= 0.9.2
+                    , freer-simple ^>= 1.2.1.2
