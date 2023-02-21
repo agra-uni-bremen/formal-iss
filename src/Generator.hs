@@ -26,4 +26,5 @@ generate :: InstructionType -> Eff '[Operations (E.Expr CExpr)] w -> [CStat]
 generate _ req = snd $ run (runWriter (reinterpret gen req))
   where
     gen :: Operations (E.Expr CExpr) ~> Eff '[Writer [CStat]]
+    gen (ReadRegister _) = tell [CBreak $ mkNodeInfoOnlyPos nopos] >> pure (E.FromInt 0)
     gen _ = error "not implemented"
