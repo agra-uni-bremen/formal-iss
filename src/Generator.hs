@@ -29,6 +29,8 @@ runExpression _            = error "not implemented"
 
 ------------------------------------------------------------------------
 
+-- TODO: Call buildInstruction'' for the instruction type.
+-- TODO: Emit a C function definition for the given instruction type.
 generate :: InstructionType -> Evaluator -> Eff '[Operations CExpr] w -> [CStat]
 generate _ evalE req = snd $ run (runWriter (reinterpret gen req))
   where
