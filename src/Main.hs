@@ -9,6 +9,6 @@ import Generator
 main :: IO ()
 main = do
     let inst = ADD Zero Zero Zero
-    let stats = head $ generate inst
+    let stat = generate inst
 
-    putStrLn $ show (pretty stats)
+    putStrLn $ show (pretty stat)
