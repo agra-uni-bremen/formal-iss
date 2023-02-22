@@ -8,12 +8,12 @@ instrIdent = mkIdent nopos "instr" (names !! 5)
 
 instrArg :: CDecl
 instrArg = CDecl
-    [(CTypeSpec $ CVoidType (mkNodeInfoOnlyPos nopos))]
+    [(CTypeSpec $ CVoidType undefNode)]
     [((Just instrArg'), Nothing, Nothing)]
-    (mkNodeInfoOnlyPos nopos)
+    undefNode
   where
     instrArg' :: CDeclr
-    instrArg' = CDeclr (Just instrIdent) [CPtrDeclr [] (mkNodeInfoOnlyPos nopos)] Nothing [] (mkNodeInfoOnlyPos nopos)
+    instrArg' = CDeclr (Just instrIdent) [CPtrDeclr [] undefNode] Nothing [] undefNode
 
 -- regIndent :: Ident
 -- regIndent = mkIdent nopos "regFile" (names !! 6)
@@ -21,13 +21,13 @@ instrArg = CDecl
 ------------------------------------------------------------------------
 
 noReturn :: CDeclSpec
-noReturn = CTypeSpec $ CVoidType (mkNodeInfoOnlyPos nopos)
+noReturn = CTypeSpec $ CVoidType undefNode
 
 mkFuncDeclr :: Ident -> [CDecl] -> CDeclr
-mkFuncDeclr ident args = CDeclr (Just ident) [mkFuncDeclr' args] Nothing [] (mkNodeInfoOnlyPos nopos)
+mkFuncDeclr ident args = CDeclr (Just ident) [mkFuncDeclr' args] Nothing [] undefNode
     where
         mkFuncDeclr' :: [CDecl] -> CDerivedDeclr
-        mkFuncDeclr' args' = CFunDeclr (Right (args', False)) [] (mkNodeInfoOnlyPos nopos)
+        mkFuncDeclr' args' = CFunDeclr (Right (args', False)) [] undefNode
 
 makeExecutor :: Ident -> CStat -> CFunDef
 makeExecutor ident statement = CFunDef
@@ -35,4 +35,4 @@ makeExecutor ident statement = CFunDef
                                     (mkFuncDeclr ident [instrArg])
                                     []
                                     statement
-                                    (mkNodeInfoOnlyPos nopos)
+                                    undefNode

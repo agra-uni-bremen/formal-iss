@@ -21,10 +21,10 @@ import qualified Interface as IF
 evalE :: E.Expr CExpr -> CExpr
 evalE (E.FromImm e)  = e
 evalE (E.FromInt v)  = let cint = CInteger (fromIntegral v) HexRepr noFlags in
-                                CConst (CIntConst cint $ mkNodeInfoOnlyPos nopos)
-evalE (E.AddU e1 e2) = CBinary CAddOp (evalE e1) (evalE e2) $ mkNodeInfoOnlyPos nopos
-evalE (E.AddS e1 e2) = CBinary CAddOp (evalE e1) (evalE e2) $ mkNodeInfoOnlyPos nopos
-evalE (E.Eq e1 e2)   = CBinary CEqOp  (evalE e1) (evalE e2) $ mkNodeInfoOnlyPos nopos
+                                CConst (CIntConst cint undefNode)
+evalE (E.AddU e1 e2) = CBinary CAddOp (evalE e1) (evalE e2) undefNode
+evalE (E.AddS e1 e2) = CBinary CAddOp (evalE e1) (evalE e2) undefNode
+evalE (E.Eq e1 e2)   = CBinary CEqOp  (evalE e1) (evalE e2) undefNode
 evalE _            = error "not implemented"
 
 ------------------------------------------------------------------------
@@ -38,15 +38,15 @@ generate' req = snd $ run (runWriter (reinterpret gen req))
     gen (GetRS1 instr)          = pure $ IF.instrRS1 instr
     gen (GetRS2 instr)          = pure $ IF.instrRS2 instr
     gen (ReadRegister idx)      = pure $ IF.readReg idx
-    gen (WriteRegister idx val) = tell [CExpr (Just $ IF.writeReg idx (evalE val)) $ mkNodeInfoOnlyPos nopos]
-    -- gen (ReadRegister _) = tell [CBreak $ mkNodeInfoOnlyPos nopos] >> pure (E.FromInt 0)
+    gen (WriteRegister idx val) = tell [CExpr (Just $ IF.writeReg idx (evalE val)) undefNode]
+    -- gen (ReadRegister _) = tell [CBreak undefNode] >> pure (E.FromInt 0)
     gen _ = error "not implemented"
 
 generate :: InstructionType -> CFunDef
 generate inst = makeExecutor (mkIdent nopos "exec_add" (IF.names !! 23992)) block
   where
     cflow :: Eff '[Operations CExpr] ()
-    cflow = buildInstruction'' @CExpr (CVar instrIdent (mkNodeInfoOnlyPos nopos)) inst
+    cflow = buildInstruction'' @CExpr (CVar instrIdent undefNode) inst
 
     block :: CStat
-    block = CCompound [] (map CBlockStmt $ generate' cflow) (mkNodeInfoOnlyPos nopos)
+    block = CCompound [] (map CBlockStmt $ generate' cflow) undefNode
