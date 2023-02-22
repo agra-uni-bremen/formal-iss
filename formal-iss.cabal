@@ -20,6 +20,7 @@ executable formal-iss
 
     other-modules:    Generator
                     , Interface
+                    , Executor
 
     build-depends:    base         ^>= 4.17.0.0
                     , libriscv     ^>= 0.1.0.0
