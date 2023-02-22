@@ -29,14 +29,10 @@ mkFuncDeclr ident args = CDeclr (Just ident) [mkFuncDeclr' args] Nothing [] (mkN
         mkFuncDeclr' :: [CDecl] -> CDerivedDeclr
         mkFuncDeclr' args' = CFunDeclr (Right (args', False)) [] (mkNodeInfoOnlyPos nopos)
 
-makeBlock :: CStat -> CStat
-makeBlock stat = CCompound [] [CBlockStmt stat] (mkNodeInfoOnlyPos nopos)
-
-
 makeExecutor :: Ident -> CStat -> CFunDef
 makeExecutor ident statement = CFunDef
                                     [noReturn]
                                     (mkFuncDeclr ident [instrArg])
                                     []
-                                    (makeBlock statement)
+                                    statement
                                     (mkNodeInfoOnlyPos nopos)

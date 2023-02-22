@@ -42,7 +42,11 @@ generate' req = snd $ run (runWriter (reinterpret gen req))
     -- gen (ReadRegister _) = tell [CBreak $ mkNodeInfoOnlyPos nopos] >> pure (E.FromInt 0)
     gen _ = error "not implemented"
 
-generate :: InstructionType -> CStat
-generate inst = CCompound [] (map CBlockStmt $ generate' cflow) (mkNodeInfoOnlyPos nopos)
+generate :: InstructionType -> CFunDef
+generate inst = makeExecutor (mkIdent nopos "exec_add" (IF.names !! 23992)) block
   where
+    cflow :: Eff '[Operations CExpr] ()
     cflow = buildInstruction'' @CExpr (CVar instrIdent (mkNodeInfoOnlyPos nopos)) inst
+
+    block :: CStat
+    block = CCompound [] (map CBlockStmt $ generate' cflow) (mkNodeInfoOnlyPos nopos)
