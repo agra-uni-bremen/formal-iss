@@ -9,7 +9,7 @@ import Control.Monad.Freer
 import Control.Monad.Freer.Writer
 
 import LibRISCV.Decoder (InstructionType)
-import LibRISCV.Spec.AST (buildInstruction'')
+import LibRISCV.Spec.AST (instrSemantics)
 import LibRISCV.Spec.Operations
 import qualified LibRISCV.Spec.Expr as E
 
@@ -46,7 +46,7 @@ generate :: InstructionType -> CFunDef
 generate inst = makeExecutor (mkIdent nopos "exec_add" (IF.names !! 23992)) block
   where
     cflow :: Eff '[Operations CExpr] ()
-    cflow = buildInstruction'' @CExpr (CVar instrIdent undefNode) inst
+    cflow = instrSemantics @CExpr (CVar instrIdent undefNode) inst
 
     block :: CStat
     block = CCompound [] (map CBlockStmt $ generate' cflow) undefNode
