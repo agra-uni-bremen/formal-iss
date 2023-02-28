@@ -7,7 +7,6 @@ author:          Sören Tempel
 maintainer:      tempel@uni-bremen.de
 category:        Development
 build-type:      Simple
-extra-doc-files: CHANGELOG.md
 
 common warnings
     ghc-options: -Wall
@@ -19,6 +18,7 @@ executable formal-iss
     default-language: GHC2021
 
     other-modules:    Generator
+                    , Bindings
                     , Interface
                     , Executor
 
@@ -26,3 +26,4 @@ executable formal-iss
                     , libriscv     ^>= 0.1.0.0
                     , language-c   ^>= 0.9.2
                     , freer-simple ^>= 1.2.1.2
+                    , containers   ^>= 0.6.7
