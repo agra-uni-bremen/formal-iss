@@ -1,10 +1,9 @@
 module Main where
 
-import LibRISCV (RegIdx(..))
-import LibRISCV.Decoder (InstructionType(..))
-
-import Language.C
 import Generator
+import Language.C
+import LibRISCV (RegIdx (..))
+import LibRISCV.Decoder (InstructionType (..))
 
 main :: IO ()
 main = do

@@ -16,3 +16,11 @@ Currently, the code generates a C implementation of the ADD instruction:
 
 Additional instruction can be added after the software architecture is somewhat stable.
 Function for interacting with the architecture state (e.g. `write_register`) are supposed to be provided separately.
+
+## Development
+
+Please format all code with [fourmolu](https://github.com/fourmolu/fourmolu).
+For convince, a pre-commit Git hook for checking if files are properly formated is provided in `.githooks`.
+It can be activated using:
+
+    $ git config --local core.hooksPath .githooks
