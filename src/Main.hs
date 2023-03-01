@@ -10,4 +10,4 @@ main = do
     let inst = ADD Zero Zero Zero
     let stat = generate newNameSupply inst
 
-    putStrLn $ show (pretty stat)
+    print (pretty stat)

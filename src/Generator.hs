@@ -36,7 +36,7 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
     gen (GetRD instr) = IF.instrRD instr <$> ask
     gen (GetRS1 instr) = IF.instrRS1 instr <$> ask
     gen (GetRS2 instr) = IF.instrRS2 instr <$> ask
-    gen (ReadRegister idx) = ((flip) IF.readReg) idx <$> ask
+    gen (ReadRegister idx) = flip IF.readReg idx <$> ask
     gen (WriteRegister idx val) = do
         curBinds <- ask
         let expr = IF.writeReg curBinds idx (evalE val)

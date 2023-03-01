@@ -5,8 +5,8 @@ import Language.C
 instrArg :: Ident -> CDecl
 instrArg instrIdent =
     CDecl
-        [(CTypeSpec $ CVoidType undefNode)]
-        [((Just instrArg'), Nothing, Nothing)]
+        [CTypeSpec $ CVoidType undefNode]
+        [(Just instrArg', Nothing, Nothing)]
         undefNode
   where
     instrArg' :: CDeclr

@@ -25,7 +25,7 @@ mkBinding s name = (s, mkIdent nopos s name)
 mkBindings :: [Name] -> Bindings
 mkBindings names = M.fromList $ snd $ foldl fn (names, []) funcNames
   where
-    fn (n, acc) s = (tail n, (mkBinding s $ head n) : acc)
+    fn (n, acc) s = (tail n, mkBinding s (head n) : acc)
 
 getIdent :: String -> Bindings -> Ident
 getIdent name bindings = fromJust (M.lookup name bindings)
