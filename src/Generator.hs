@@ -26,6 +26,7 @@ evalE _ (E.FromImm e) = e
 evalE _ (E.FromInt v) =
     let cint = CInteger (fromIntegral v) HexRepr noFlags
      in CConst (CIntConst cint undefNode)
+evalE b (E.FromUInt v) = evalE b (E.FromInt $ fromIntegral v)
 evalE b (E.ZExtByte v) = castTo (IF.uint8 b) (evalE b v)
 evalE b (E.AddU e1 e2) = CBinary CAddOp (evalE b e1) (evalE b e2) undefNode
 evalE b (E.AddS e1 e2) = CBinary CAddOp (evalE b e1) (evalE b e2) undefNode
