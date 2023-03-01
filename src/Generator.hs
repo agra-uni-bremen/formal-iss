@@ -35,13 +35,13 @@ buildSemantics :: Bindings -> Eff '[Operations CExpr] w -> [CStat]
 buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 gen req)))
   where
     gen :: Operations CExpr ~> Eff '[Reader Bindings, Writer [CStat]]
-    gen (GetRD  instr)          = IF.instrRD instr  <$> asks (getIdent "instr_rd")
-    gen (GetRS1 instr)          = IF.instrRS1 instr <$> asks (getIdent "instr_rs1")
-    gen (GetRS2 instr)          = IF.instrRS2 instr <$> asks (getIdent "instr_rs2")
-    gen (ReadRegister idx)      = ((flip) IF.readReg) idx <$> asks (getIdent "read_register")
+    gen (GetRD  instr)          = IF.instrRD instr  <$> ask
+    gen (GetRS1 instr)          = IF.instrRS1 instr <$> ask
+    gen (GetRS2 instr)          = IF.instrRS2 instr <$> ask
+    gen (ReadRegister idx)      = ((flip) IF.readReg) idx <$> ask
     gen (WriteRegister idx val) = do
-        ident <- asks (getIdent "write_register")
-        tell [CExpr (Just $ IF.writeReg ident idx (evalE val)) undefNode]
+        curBinds <- ask
+        tell [CExpr (Just $ IF.writeReg curBinds idx (evalE val)) undefNode]
     -- gen (ReadRegister _) = tell [CBreak undefNode] >> pure (E.FromInt 0)
     gen _ = error "not implemented"
 
