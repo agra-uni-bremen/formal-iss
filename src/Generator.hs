@@ -28,9 +28,30 @@ evalE _ (E.FromInt v) =
      in CConst (CIntConst cint undefNode)
 evalE b (E.FromUInt v) = evalE b (E.FromInt $ fromIntegral v)
 evalE b (E.ZExtByte v) = castTo (IF.uint8 b) (evalE b v)
+evalE b (E.ZExtHalf v) = castTo (IF.uint16 b) (evalE b v)
+evalE b (E.SExtByte v) = castTo (IF.int8 b) (evalE b v)
+evalE b (E.SExtHalf v) = castTo (IF.int16 b) (evalE b v)
 evalE b (E.AddU e1 e2) = CBinary CAddOp (evalE b e1) (evalE b e2) undefNode
 evalE b (E.AddS e1 e2) = CBinary CAddOp (evalE b e1) (evalE b e2) undefNode
+evalE b (E.Sub e1 e2) = CBinary CSubOp (evalE b e1) (evalE b e2) undefNode
 evalE b (E.Eq e1 e2) = CBinary CEqOp (evalE b e1) (evalE b e2) undefNode
+evalE b (E.Slt e1 e2) =
+    CBinary
+        CLeOp
+        (castTo (IF.int32 b) (evalE b e1))
+        (castTo (IF.int32 b) (evalE b e2))
+        undefNode
+evalE b (E.Sge e1 e2) =
+    CBinary
+        CGeqOp
+        (castTo (IF.int32 b) (evalE b e1))
+        (castTo (IF.int32 b) (evalE b e2))
+        undefNode
+evalE b (E.Ult e1 e2) = CBinary CLeOp (evalE b e1) (evalE b e2) undefNode
+evalE b (E.Uge e1 e2) = CBinary CGeqOp (evalE b e1) (evalE b e2) undefNode
+evalE b (E.And e1 e2) = CBinary CAndOp (evalE b e1) (evalE b e2) undefNode
+evalE b (E.Or e1 e2) = CBinary COrOp (evalE b e1) (evalE b e2) undefNode
+evalE b (E.Xor e1 e2) = CBinary CXorOp (evalE b e1) (evalE b e2) undefNode
 evalE _ _ = error "not implemented"
 
 ------------------------------------------------------------------------

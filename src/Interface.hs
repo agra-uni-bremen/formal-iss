@@ -4,17 +4,34 @@ module Interface where
 import Bindings
 import Language.C
 
+typedef :: String -> Bindings -> CDeclSpec
+typedef s b = CTypeSpec (CTypeDef typeIdent undefNode)
+  where
+    typeIdent = getIdent s b
+
 -- The typedef for uint32_t from stdint.h.
 uint32 :: Bindings -> CDeclSpec
-uint32 binds = CTypeSpec (CTypeDef typeIdent undefNode)
-  where
-    typeIdent = getIdent "uint32_t" binds
+uint32 = typedef "uint32_t"
 
--- The typedef for uint8_t from stdint.h.
+-- The typedef for uint32_t from stdint.h.
+uint16 :: Bindings -> CDeclSpec
+uint16 = typedef "uint16_t"
+
+-- -- The typedef for uint8_t from stdint.h.
 uint8 :: Bindings -> CDeclSpec
-uint8 binds = CTypeSpec (CTypeDef typeIdent undefNode)
-  where
-    typeIdent = getIdent "uint8_t" binds
+uint8 = typedef "uint8_t"
+
+-- -- The typedef for int32_t from stdint.h.
+int32 :: Bindings -> CDeclSpec
+int32 = typedef "int32_t"
+
+-- -- The typedef for int32_t from stdint.h.
+int16 :: Bindings -> CDeclSpec
+int16 = typedef "int16_t"
+
+-- -- The typedef for int8_t from stdint.h.
+int8 :: Bindings -> CDeclSpec
+int8 = typedef "int8_t"
 
 ------------------------------------------------------------------------
 
