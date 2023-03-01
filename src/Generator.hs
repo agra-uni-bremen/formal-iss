@@ -19,7 +19,6 @@ import Executor
 import qualified Interface as IF
 
 -- TODO: Treat inner value as unsigned
--- TODO: Don't create NodePos explicitly
 evalE :: E.Expr CExpr -> CExpr
 evalE (E.FromImm e)  = e
 evalE (E.FromInt v)  = let cint = CInteger (fromIntegral v) HexRepr noFlags in
@@ -41,8 +40,8 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
     gen (ReadRegister idx)      = ((flip) IF.readReg) idx <$> ask
     gen (WriteRegister idx val) = do
         curBinds <- ask
-        tell [CExpr (Just $ IF.writeReg curBinds idx (evalE val)) undefNode]
-    -- gen (ReadRegister _) = tell [CBreak undefNode] >> pure (E.FromInt 0)
+        let expr = IF.writeReg curBinds idx (evalE val)
+        tell [CExpr (Just expr) undefNode]
     gen _ = error "not implemented"
 
 generate :: [Name] -> InstructionType -> CFunDef
