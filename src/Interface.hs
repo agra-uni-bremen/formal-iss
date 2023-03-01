@@ -24,29 +24,28 @@ writeReg binds idx val = CCall (CVar funcIdent undefNode) [idx, val] undefNode
 
 ------------------------------------------------------------------------
 
+getInstrReg :: String -> CExpr -> Bindings -> CExpr
+getInstrReg funcName instr binds = CCall (CVar funcIdent undefNode) [instr] undefNode
+  where
+    funcIdent = getIdent funcName binds
+
 -- Interface contract:
 --
 --  uint32_t instr_rs1(void *instr);
 --
 instrRS1 :: CExpr -> Bindings -> CExpr
-instrRS1 instr binds = CCall (CVar funcIdent undefNode) [instr] undefNode
-  where
-    funcIdent = getIdent "instr_rs1" binds
+instrRS1 = getInstrReg "instr_rs1"
 
 -- Interface contract:
 --
 --  uint32_t instr_rs2(void *instr);
 --
 instrRS2 :: CExpr -> Bindings -> CExpr
-instrRS2 instr binds = CCall (CVar funcIdent undefNode) [instr] undefNode
-  where
-    funcIdent = getIdent "instr_rs2" binds
+instrRS2 = getInstrReg "instr_rs2"
 
 -- Interface contract:
 --
 --  uint32_t instr_rd(void *instr);
 --
 instrRD :: CExpr -> Bindings -> CExpr
-instrRD instr binds = CCall (CVar funcIdent undefNode) [instr] undefNode
-  where
-    funcIdent = getIdent "instr_rd" binds
+instrRD = getInstrReg "instr_rd"
