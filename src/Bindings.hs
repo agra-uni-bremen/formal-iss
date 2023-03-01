@@ -25,5 +25,3 @@ mkBindings names = M.fromList $ snd $ foldl (\(n, acc) s -> (tail n, (mkBinding 
 
 getIdent :: String -> Bindings -> Ident
 getIdent name bindings = fromJust (M.lookup name bindings)
-
-
