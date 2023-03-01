@@ -8,8 +8,12 @@ import Language.C
 -- Statically known function names required to be provided as an Interface.
 funcNames :: [String]
 funcNames =
-    [ "read_register"  -- Read register interface function
+    [ "uint8_t"        -- Typedef from stdint.h
+    , "uint32_t"       -- Typedef from stdint.h
+
+    , "read_register"  -- Read register interface function
     , "write_register" -- Write register interface function
+
     , "instr_rs1"      -- Interface function for RS1 access
     , "instr_rs2"      -- Interface function for RS2 access
     , "instr_rd"       -- Interface function for RD access

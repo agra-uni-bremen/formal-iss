@@ -4,6 +4,20 @@ module Interface where
 import Bindings
 import Language.C
 
+-- The typedef for uint32_t from stdint.h.
+uint32 :: Bindings -> CDeclSpec
+uint32 binds = CTypeSpec (CTypeDef typeIdent undefNode)
+  where
+    typeIdent = getIdent "uint32_t" binds
+
+-- The typedef for uint8_t from stdint.h.
+uint8 :: Bindings -> CDeclSpec
+uint8 binds = CTypeSpec (CTypeDef typeIdent undefNode)
+  where
+    typeIdent = getIdent "uint8_t" binds
+
+------------------------------------------------------------------------
+
 -- Interface contract:
 --
 --  uint32_t read_register(unsigned idx);

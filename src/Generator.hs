@@ -2,7 +2,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Generator (generate) where
+module Generator (generate, evalE) where
 
 import Bindings
 import Control.Monad.Freer
@@ -16,16 +16,21 @@ import LibRISCV.Spec.AST (instrSemantics)
 import LibRISCV.Spec.Expr qualified as E
 import LibRISCV.Spec.Operations
 
--- TODO: Treat inner value as unsigned
-evalE :: E.Expr CExpr -> CExpr
-evalE (E.FromImm e) = e
-evalE (E.FromInt v) =
+-- Helper function to perform type conversions via casts.
+castTo :: CDeclSpec -> CExpr -> CExpr
+castTo ty expr = CCast (CDecl [ty] [] undefNode) expr undefNode
+
+-- Assumption: CExpr is an unsigned value in two's complement (uint32_t).
+evalE :: Bindings -> E.Expr CExpr -> CExpr
+evalE _ (E.FromImm e) = e
+evalE _ (E.FromInt v) =
     let cint = CInteger (fromIntegral v) HexRepr noFlags
      in CConst (CIntConst cint undefNode)
-evalE (E.AddU e1 e2) = CBinary CAddOp (evalE e1) (evalE e2) undefNode
-evalE (E.AddS e1 e2) = CBinary CAddOp (evalE e1) (evalE e2) undefNode
-evalE (E.Eq e1 e2) = CBinary CEqOp (evalE e1) (evalE e2) undefNode
-evalE _ = error "not implemented"
+evalE b (E.ZExtByte v) = castTo (IF.uint8 b) (evalE b v)
+evalE b (E.AddU e1 e2) = CBinary CAddOp (evalE b e1) (evalE b e2) undefNode
+evalE b (E.AddS e1 e2) = CBinary CAddOp (evalE b e1) (evalE b e2) undefNode
+evalE b (E.Eq e1 e2) = CBinary CEqOp (evalE b e1) (evalE b e2) undefNode
+evalE _ _ = error "not implemented"
 
 ------------------------------------------------------------------------
 
@@ -39,7 +44,7 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
     gen (ReadRegister idx) = flip IF.readReg idx <$> ask
     gen (WriteRegister idx val) = do
         curBinds <- ask
-        let expr = IF.writeReg curBinds idx (evalE val)
+        let expr = IF.writeReg curBinds idx (evalE curBinds val)
         tell [CExpr (Just expr) undefNode]
     gen _ = error "not implemented"
 
