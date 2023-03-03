@@ -88,7 +88,7 @@ generate (nFunc : nInstr : nPC : ns) inst = makeExecutor funcIdent instrIdent bl
     instrIdent = mkIdent nopos "instr" nInstr
 
     pcIdent :: Ident
-    pcIdent = mkIdent nopos "instr" nPC
+    pcIdent = mkIdent nopos "pc" nPC
 
     bindings :: Bindings
     bindings = mkBindings ns
