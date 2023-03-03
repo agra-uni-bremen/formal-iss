@@ -2,12 +2,11 @@ module Main where
 
 import Generator
 import Language.C
-import LibRISCV (RegIdx (..))
-import LibRISCV.Decoder (InstructionType (..))
+import LibRISCV.Decoder.Opcode (InstructionType (..))
 
 main :: IO ()
 main = do
-    let inst = ADD Zero Zero Zero
+    let inst = ADD
     let stat = generate newNameSupply inst
 
     print (pretty stat)

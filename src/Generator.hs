@@ -8,13 +8,20 @@ import Bindings
 import Control.Monad.Freer
 import Control.Monad.Freer.Reader
 import Control.Monad.Freer.Writer
+import Conversion
+import Data.Word
 import Executor
 import Interface qualified as IF
 import Language.C
-import LibRISCV.Decoder (InstructionType)
+import LibRISCV.Decoder.Opcode (InstructionType)
 import LibRISCV.Spec.AST (instrSemantics)
 import LibRISCV.Spec.Expr qualified as E
 import LibRISCV.Spec.Operations
+
+-- XXX: This is a hack the Conversion type constraint needs
+-- to be removed from instrSemantics (presently needed for Branches).
+instance Conversion CExpr Word32 where
+    convert = error "Word32 conversion not implemented"
 
 -- Helper function to perform type conversions via casts.
 castTo :: CDeclSpec -> CExpr -> CExpr
@@ -23,16 +30,14 @@ castTo ty expr = CCast (CDecl [ty] [] undefNode) expr undefNode
 -- Assumption: CExpr is an unsigned value in two's complement (uint32_t).
 evalE :: Bindings -> E.Expr CExpr -> CExpr
 evalE _ (E.FromImm e) = e
-evalE _ (E.FromInt v) =
+evalE _ (E.FromUInt v) =
     let cint = CInteger (fromIntegral v) HexRepr noFlags
      in CConst (CIntConst cint undefNode)
-evalE b (E.FromUInt v) = evalE b (E.FromInt $ fromIntegral v)
 evalE b (E.ZExtByte v) = castTo (IF.uint8 b) (evalE b v)
 evalE b (E.ZExtHalf v) = castTo (IF.uint16 b) (evalE b v)
 evalE b (E.SExtByte v) = castTo (IF.int8 b) (evalE b v)
 evalE b (E.SExtHalf v) = castTo (IF.int16 b) (evalE b v)
-evalE b (E.AddU e1 e2) = CBinary CAddOp (evalE b e1) (evalE b e2) undefNode
-evalE b (E.AddS e1 e2) = CBinary CAddOp (evalE b e1) (evalE b e2) undefNode
+evalE b (E.Add e1 e2) = CBinary CAddOp (evalE b e1) (evalE b e2) undefNode
 evalE b (E.Sub e1 e2) = CBinary CSubOp (evalE b e1) (evalE b e2) undefNode
 evalE b (E.Eq e1 e2) = CBinary CEqOp (evalE b e1) (evalE b e2) undefNode
 evalE b (E.Slt e1 e2) =
@@ -60,9 +65,9 @@ buildSemantics :: Bindings -> Eff '[Operations CExpr] w -> [CStat]
 buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 gen req)))
   where
     gen :: Operations CExpr ~> Eff '[Reader Bindings, Writer [CStat]]
-    gen (GetRD instr) = IF.instrRD instr <$> ask
-    gen (GetRS1 instr) = IF.instrRS1 instr <$> ask
-    gen (GetRS2 instr) = IF.instrRS2 instr <$> ask
+    gen (DecodeRD instr) = IF.instrRD instr <$> ask
+    gen (DecodeRS1 instr) = IF.instrRS1 instr <$> ask
+    gen (DecodeRS2 instr) = IF.instrRS2 instr <$> ask
     gen (ReadRegister idx) = flip IF.readReg idx <$> ask
     gen (WriteRegister idx val) = do
         curBinds <- ask
@@ -71,7 +76,7 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
     gen _ = error "not implemented"
 
 generate :: [Name] -> InstructionType -> CFunDef
-generate (nFunc : nInstr : ns) inst = makeExecutor funcIdent instrIdent block
+generate (nFunc : nInstr : nPC : ns) inst = makeExecutor funcIdent instrIdent block
   where
     -- Identifier for the generated function itself.
     funcIdent :: Ident
@@ -81,11 +86,14 @@ generate (nFunc : nInstr : ns) inst = makeExecutor funcIdent instrIdent block
     instrIdent :: Ident
     instrIdent = mkIdent nopos "instr" nInstr
 
+    pcIdent :: Ident
+    pcIdent = mkIdent nopos "instr" nPC
+
     bindings :: Bindings
     bindings = mkBindings ns
 
     cflow :: Eff '[Operations CExpr] ()
-    cflow = instrSemantics @CExpr (CVar instrIdent undefNode) inst
+    cflow = instrSemantics @CExpr (CVar pcIdent undefNode) (CVar instrIdent undefNode) inst
 
     block :: CStat
     block = CCompound [] (map CBlockStmt $ buildSemantics bindings cflow) undefNode
