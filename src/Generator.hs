@@ -17,6 +17,7 @@ import LibRISCV.Decoder.Opcode (InstructionType)
 import LibRISCV.Spec.AST (instrSemantics)
 import LibRISCV.Spec.Expr qualified as E
 import LibRISCV.Spec.Operations
+import Util
 
 -- XXX: This is a hack the Conversion type constraint needs
 -- to be removed from instrSemantics (presently needed for Branches).
@@ -80,7 +81,7 @@ generate (nFunc : nInstr : nPC : ns) inst = makeExecutor funcIdent instrIdent bl
   where
     -- Identifier for the generated function itself.
     funcIdent :: Ident
-    funcIdent = mkIdent nopos "exec_add" nFunc
+    funcIdent = mkIdent nopos ("exec_" ++ foldcase (show inst)) nFunc
 
     -- Identifier for the instruction argument of the function.
     instrIdent :: Ident

@@ -21,6 +21,7 @@ executable formal-iss
                     , Bindings
                     , Interface
                     , Executor
+                    , Util
 
     build-depends:    base         ^>= 4.17.0.0
                     , libriscv     ^>= 0.1.0.0
