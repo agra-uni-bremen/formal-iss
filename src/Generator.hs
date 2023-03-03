@@ -76,9 +76,11 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
         tell [CExpr (Just expr) undefNode]
     gen _ = error "not implemented"
 
-generate :: [Name] -> InstructionType -> CFunDef
-generate (nFunc : nInstr : nPC : ns) inst = makeExecutor funcIdent instrIdent block
+generate' :: [Name] -> InstructionType -> (CFunDef, [Name])
+generate' (nFunc : nInstr : nPC : ns) inst = (makeExecutor funcIdent instrIdent block, newNs)
   where
+    (bindings, newNs) = mkBindings ns
+
     -- Identifier for the generated function itself.
     funcIdent :: Ident
     funcIdent = mkIdent nopos ("exec_" ++ foldcase (show inst)) nFunc
@@ -87,15 +89,19 @@ generate (nFunc : nInstr : nPC : ns) inst = makeExecutor funcIdent instrIdent bl
     instrIdent :: Ident
     instrIdent = mkIdent nopos "instr" nInstr
 
+    -- Identifier for the current program counter.
     pcIdent :: Ident
     pcIdent = mkIdent nopos "pc" nPC
-
-    bindings :: Bindings
-    bindings = mkBindings ns
 
     cflow :: Eff '[Operations CExpr] ()
     cflow = instrSemantics @CExpr (CVar pcIdent undefNode) (CVar instrIdent undefNode) inst
 
     block :: CStat
     block = CCompound [] (map CBlockStmt $ buildSemantics bindings cflow) undefNode
-generate _ _ = error "invalid name list"
+generate' _ _ = error "invalid name list"
+
+generate :: [InstructionType] -> [CFunDef]
+generate types = snd $ foldl fn (newNameSupply, []) types
+  where
+    -- Generate a CFunDef for each instruction and propagate the name supply.
+    fn (ns, funcs) ty = let (f, newNs) = generate' ns ty in (newNs, f : funcs)

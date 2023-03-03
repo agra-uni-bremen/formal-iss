@@ -26,9 +26,10 @@ type Bindings = M.Map String Ident
 mkBinding :: String -> Name -> (String, Ident)
 mkBinding s name = (s, mkIdent nopos s name)
 
-mkBindings :: [Name] -> Bindings
-mkBindings names = M.fromList $ snd $ foldl fn (names, []) funcNames
+mkBindings :: [Name] -> (Bindings, [Name])
+mkBindings names = (M.fromList $ pairs, newNs)
   where
+    (newNs, pairs) = foldl fn (names, []) funcNames
     fn (n, acc) s = (tail n, mkBinding s (head n) : acc)
 
 getIdent :: String -> Bindings -> Ident

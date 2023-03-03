@@ -6,7 +6,6 @@ import LibRISCV.Decoder.Opcode (InstructionType (..))
 
 main :: IO ()
 main = do
-    let inst = ADD
-    let stat = generate newNameSupply inst
-
-    print (pretty stat)
+    let stat = generate [ADD, AND]
+    mapM print (map pretty stat)
+    pure ()
