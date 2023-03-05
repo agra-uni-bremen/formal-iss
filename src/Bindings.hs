@@ -13,7 +13,7 @@ funcNames =
 
     , "read_register"  -- Read register interface function
     , "write_register" -- Write register interface function
-    , "read_pc"        -- Read **next** program counter
+    , "read_next_pc"   -- Read **next** program counter
     , "write_pc"       -- Write program counter
 
     , "load_word"      -- Load a word from memory

@@ -62,7 +62,7 @@ writeReg binds idx val = CCall (CVar funcIdent undefNode) [idx, val] undefNode
 readPC :: Bindings -> CExpr
 readPC binds = CCall (CVar funcIdent undefNode) [] undefNode
   where
-    funcIdent = getIdent "read_pc" binds
+    funcIdent = getIdent "read_next_pc" binds
 
 -- Interface contract:
 --
