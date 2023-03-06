@@ -117,7 +117,7 @@ generate' (nFunc : nInstr : nPC : ns) inst = (makeExecutor funcIdent funcArgs bl
 
     -- Identifier for the current program counter.
     pcIdent :: Ident
-    pcIdent = mkIdent nopos "curPC" nPC
+    pcIdent = mkIdent nopos "instrPC" nPC
 
     -- Function arguments for the executor.
     funcArgs :: [CDecl]
