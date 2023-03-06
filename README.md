@@ -4,18 +4,8 @@ Generate an instruction set simulator (ISS) from a formal [LibRISCV](https://git
 
 ## Status
 
-Currently, the code generates a C implementation of the ADD instruction:
-
-    $ cabal run
-    Up to date
-    void exec_add(void * instr)
-    {
-        write_register(instr_rd(instr),
-                       read_register(instr_rs1(instr)) + read_register(instr_rs2(instr)));
-    }
-
-Additional instruction can be added after the software architecture is somewhat stable.
-Function for interacting with the architecture state (e.g. `write_register`) are supposed to be provided separately.
+Currently, the implementation is capable of generating a significant subset of the RV32 base instruction set.
+This subset has already been integrated with the existing [riscv-vp](https://github.com/agra-uni-bremen/riscv-vp) in the [libriscv-vp](https://github.com/nmeum/libriscv-vp) repository.
 
 ## Usage
 
