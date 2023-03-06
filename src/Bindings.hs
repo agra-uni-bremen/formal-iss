@@ -14,6 +14,9 @@ funcNames =
     , "read_register"  -- Read register interface function
     , "write_register" -- Write register interface function
 
+    , "load_word"      -- Load a word from memory
+    , "store_word"     -- Store a word in memory
+
     , "instr_rs1"      -- Interface function for RS1 access
     , "instr_rs2"      -- Interface function for RS2 access
     , "instr_rd"       -- Interface function for RD access

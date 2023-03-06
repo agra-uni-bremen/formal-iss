@@ -9,7 +9,8 @@ baseInstr :: [InstructionType]
 baseInstr =
     [ ADD
     , ADDI
-    , AND
+    , LW
+    , SW
     ]
 
 ------------------------------------------------------------------------

@@ -79,6 +79,13 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
         curBinds <- ask
         let expr = IF.writeReg curBinds idx (evalE curBinds val)
         tell [CExpr (Just expr) undefNode]
+    gen (LoadWord addr) = do
+        curBinds <- ask
+        pure $ IF.loadWord curBinds (evalE curBinds addr)
+    gen (StoreWord addr value) = do
+        curBinds <- ask
+        let expr = IF.storeWord curBinds (evalE curBinds addr) (evalE curBinds value)
+        tell [CExpr (Just expr) undefNode]
     gen _ = error "not implemented"
 
 generate' :: [Name] -> InstructionType -> (CFunDef, [Name])

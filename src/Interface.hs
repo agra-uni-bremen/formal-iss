@@ -55,6 +55,26 @@ writeReg binds idx val = CCall (CVar funcIdent undefNode) [idx, val] undefNode
 
 ------------------------------------------------------------------------
 
+-- Interface contract:
+--
+--  uint32_t mem_load_word(uint32_t addr)
+--
+loadWord :: Bindings -> CExpr -> CExpr
+loadWord binds addr = CCall (CVar funcIdent undefNode) [addr] undefNode
+  where
+    funcIdent = getIdent "load_word" binds
+
+-- Interface contract:
+--
+--  void mem_store_word(uint32_t addr, uint32_t value)
+--
+storeWord :: Bindings -> CExpr -> CExpr -> CExpr
+storeWord binds addr value = CCall (CVar funcIdent undefNode) [addr, value] undefNode
+  where
+    funcIdent = getIdent "store_word" binds
+
+------------------------------------------------------------------------
+
 getInstrPart :: String -> CExpr -> Bindings -> CExpr
 getInstrPart funcName instr binds = CCall (CVar funcIdent undefNode) [instr] undefNode
   where
