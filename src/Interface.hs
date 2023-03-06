@@ -57,7 +57,7 @@ writeReg binds idx val = CCall (CVar funcIdent undefNode) [idx, val] undefNode
 
 -- Interface contract:
 --
---  uint32_t read_pc(void)
+--  uint32_t read_next_pc(void)
 --
 readPC :: Bindings -> CExpr
 readPC binds = CCall (CVar funcIdent undefNode) [] undefNode
@@ -77,7 +77,7 @@ writePC binds value = CCall (CVar funcIdent undefNode) [value] undefNode
 
 -- Interface contract:
 --
---  uint32_t mem_load_word(uint32_t addr)
+--  uint32_t load_word(uint32_t addr)
 --
 loadWord :: Bindings -> CExpr -> CExpr
 loadWord binds addr = CCall (CVar funcIdent undefNode) [addr] undefNode
@@ -86,7 +86,7 @@ loadWord binds addr = CCall (CVar funcIdent undefNode) [addr] undefNode
 
 -- Interface contract:
 --
---  void mem_store_word(uint32_t addr, uint32_t value)
+--  void store_word(uint32_t addr, uint32_t value)
 --
 storeWord :: Bindings -> CExpr -> CExpr -> CExpr
 storeWord binds addr value = CCall (CVar funcIdent undefNode) [addr, value] undefNode
