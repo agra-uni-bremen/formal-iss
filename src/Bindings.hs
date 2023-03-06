@@ -38,6 +38,7 @@ funcNames =
     , "instr_immJ"     -- Interface function for J-immediate access
     , "instr_shamt"    -- Shamt value contained in the instruction
 
+    -- TODO: This is a local variable and should not be in Bindings.
     , "link"           -- Local link register for JAL instruction
     ]
 {- FOURMOLU_ENABLE -}
