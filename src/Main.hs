@@ -8,6 +8,7 @@ import LibRISCV.Decoder.Opcode (InstructionType (..))
 baseInstr :: [InstructionType]
 baseInstr =
     [ ADD
+    , ADDI
     , AND
     ]
 
