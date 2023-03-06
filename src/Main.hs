@@ -3,6 +3,7 @@ module Main where
 import Generator
 import Language.C
 import LibRISCV.Decoder.Opcode (InstructionType (..))
+import System.Environment (getArgs)
 
 -- Instruction from the RISC-V base instruction set.
 baseInstr :: [InstructionType]
@@ -30,4 +31,8 @@ buildTransUnit funcs = CTranslUnit funcsExt undefNode
 main :: IO ()
 main = do
     let transUnit = buildTransUnit $ generate baseInstr
-    print (pretty transUnit)
+
+    args <- getArgs
+    case args of
+        filePath : _ -> writeFile filePath (show $ pretty transUnit)
+        _ -> print (pretty transUnit)
