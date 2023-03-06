@@ -9,6 +9,11 @@ This subset has already been integrated with the existing [riscv-vp](https://git
 
 ## Usage
 
+To generate C code from the LibRISCV ISA model run the following command:
+
+    $ cabal run formal-iss -- libriscv_generated.h
+
+If the file argument is omitted, then the C code is written to standard out.
 In order to integrate the generated instruction implementations with an existing RISC-V simulator the following interface needs to be provided:
 
     #include <stdint.h>
