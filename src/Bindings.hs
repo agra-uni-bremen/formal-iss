@@ -17,6 +17,12 @@ funcNames =
     , "instr_rs1"      -- Interface function for RS1 access
     , "instr_rs2"      -- Interface function for RS2 access
     , "instr_rd"       -- Interface function for RD access
+
+    , "instr_immI"     -- Interface function for I-immediate access
+    , "instr_immS"     -- Interface function for S-immediate access
+    , "instr_immB"     -- Interface function for B-immediate access
+    , "instr_immU"     -- Interface function for U-immediate access
+    , "instr_immJ"     -- Interface function for J-immediate access
     ]
 {- FOURMOLU_ENABLE -}
 

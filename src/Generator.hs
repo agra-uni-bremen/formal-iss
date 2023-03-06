@@ -69,6 +69,11 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
     gen (DecodeRD instr) = IF.instrRD instr <$> ask
     gen (DecodeRS1 instr) = IF.instrRS1 instr <$> ask
     gen (DecodeRS2 instr) = IF.instrRS2 instr <$> ask
+    gen (DecodeImmI instr) = IF.instrImmI instr <$> ask
+    gen (DecodeImmS instr) = IF.instrImmS instr <$> ask
+    gen (DecodeImmB instr) = IF.instrImmB instr <$> ask
+    gen (DecodeImmU instr) = IF.instrImmU instr <$> ask
+    gen (DecodeImmJ instr) = IF.instrImmJ instr <$> ask
     gen (ReadRegister idx) = flip IF.readReg idx <$> ask
     gen (WriteRegister idx val) = do
         curBinds <- ask
