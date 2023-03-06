@@ -103,7 +103,7 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
     gen _ = error "not implemented"
 
 generate' :: [Name] -> InstructionType -> (CFunDef, [Name])
-generate' (nFunc : nInstr : nPC : ns) inst = (makeExecutor funcIdent instrIdent block, newNs)
+generate' (nFunc : nInstr : nPC : ns) inst = (makeExecutor funcIdent funcArgs block, newNs)
   where
     (bindings, newNs) = mkBindings ns
 
@@ -118,6 +118,10 @@ generate' (nFunc : nInstr : nPC : ns) inst = (makeExecutor funcIdent instrIdent 
     -- Identifier for the current program counter.
     pcIdent :: Ident
     pcIdent = mkIdent nopos "curPC" nPC
+
+    -- Function arguments for the executor.
+    funcArgs :: [CDecl]
+    funcArgs = [pcArg bindings pcIdent, instrArg instrIdent]
 
     cflow :: Eff '[Operations CExpr] ()
     cflow = instrSemantics @CExpr (CVar pcIdent undefNode) (CVar instrIdent undefNode) inst
