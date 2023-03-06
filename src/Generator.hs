@@ -62,10 +62,10 @@ evalE _ _ = error "not implemented"
 
 ------------------------------------------------------------------------
 
-buildSemantics :: Bindings -> Eff '[Operations CExpr] w -> [CStat]
+buildSemantics :: Bindings -> Eff '[Operations CExpr] w -> [CBlockItem]
 buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 gen req)))
   where
-    gen :: Operations CExpr ~> Eff '[Reader Bindings, Writer [CStat]]
+    gen :: Operations CExpr ~> Eff '[Reader Bindings, Writer [CBlockItem]]
     gen (DecodeRD instr) = IF.instrRD instr <$> ask
     gen (DecodeRS1 instr) = IF.instrRS1 instr <$> ask
     gen (DecodeRS2 instr) = IF.instrRS2 instr <$> ask
@@ -78,14 +78,28 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
     gen (WriteRegister idx val) = do
         curBinds <- ask
         let expr = IF.writeReg curBinds idx (evalE curBinds val)
-        tell [CExpr (Just expr) undefNode]
+        tell [CBlockStmt $ CExpr (Just expr) undefNode]
     gen (LoadWord addr) = do
         curBinds <- ask
         pure $ IF.loadWord curBinds (evalE curBinds addr)
     gen (StoreWord addr value) = do
         curBinds <- ask
         let expr = IF.storeWord curBinds (evalE curBinds addr) (evalE curBinds value)
-        tell [CExpr (Just expr) undefNode]
+        tell [CBlockStmt $ CExpr (Just expr) undefNode]
+    gen ReadPC = do
+        curBinds <- ask
+        let pc = IF.readPC curBinds
+
+        let ident = getIdent "link" curBinds
+        let declr = CDeclr (Just ident) [] Nothing [] undefNode
+        let var = CDecl [IF.uint32 curBinds] [(Just declr, Just (CInitExpr pc undefNode), Nothing)] undefNode
+
+        tell [CBlockDecl var]
+        pure $ CVar ident undefNode
+    gen (WritePC value) = do
+        curBinds <- ask
+        let expr = IF.writePC binds (evalE curBinds value)
+        tell [CBlockStmt $ CExpr (Just expr) undefNode]
     gen _ = error "not implemented"
 
 generate' :: [Name] -> InstructionType -> (CFunDef, [Name])
@@ -103,13 +117,13 @@ generate' (nFunc : nInstr : nPC : ns) inst = (makeExecutor funcIdent instrIdent 
 
     -- Identifier for the current program counter.
     pcIdent :: Ident
-    pcIdent = mkIdent nopos "pc" nPC
+    pcIdent = mkIdent nopos "curPC" nPC
 
     cflow :: Eff '[Operations CExpr] ()
     cflow = instrSemantics @CExpr (CVar pcIdent undefNode) (CVar instrIdent undefNode) inst
 
     block :: CStat
-    block = CCompound [] (map CBlockStmt $ buildSemantics bindings cflow) undefNode
+    block = CCompound [] (buildSemantics bindings cflow) undefNode
 generate' _ _ = error "invalid name list"
 
 generate :: [InstructionType] -> [CFunDef]

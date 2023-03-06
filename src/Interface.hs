@@ -57,6 +57,26 @@ writeReg binds idx val = CCall (CVar funcIdent undefNode) [idx, val] undefNode
 
 -- Interface contract:
 --
+--  uint32_t read_pc(void)
+--
+readPC :: Bindings -> CExpr
+readPC binds = CCall (CVar funcIdent undefNode) [] undefNode
+  where
+    funcIdent = getIdent "read_pc" binds
+
+-- Interface contract:
+--
+--  void write_pc(uint32_t newPC)
+--
+writePC :: Bindings -> CExpr -> CExpr
+writePC binds value = CCall (CVar funcIdent undefNode) [value] undefNode
+  where
+    funcIdent = getIdent "write_pc" binds
+
+------------------------------------------------------------------------
+
+-- Interface contract:
+--
 --  uint32_t mem_load_word(uint32_t addr)
 --
 loadWord :: Bindings -> CExpr -> CExpr

@@ -13,6 +13,8 @@ funcNames =
 
     , "read_register"  -- Read register interface function
     , "write_register" -- Write register interface function
+    , "read_pc"        -- Read **next** program counter
+    , "write_pc"       -- Write program counter
 
     , "load_word"      -- Load a word from memory
     , "store_word"     -- Store a word in memory
@@ -26,6 +28,8 @@ funcNames =
     , "instr_immB"     -- Interface function for B-immediate access
     , "instr_immU"     -- Interface function for U-immediate access
     , "instr_immJ"     -- Interface function for J-immediate access
+
+    , "link"           -- Local link register for JAL instruction
     ]
 {- FOURMOLU_ENABLE -}
 
