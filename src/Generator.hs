@@ -79,7 +79,7 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
         let cond = CUnary CNegOp (evalE curBinds expr) undefNode
 
         let ifStat = CIf cond (CReturn Nothing undefNode) Nothing undefNode
-        tell [CBlockStmt $ ifStat]
+        tell [CBlockStmt ifStat]
 
         -- The previously emitted if statement would return early
         -- if the condition is not statisfied. As such, statements
@@ -91,7 +91,7 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
         let cond = evalE curBinds expr
 
         let ifStat = CIf cond (CReturn Nothing undefNode) Nothing undefNode
-        tell [CBlockStmt $ ifStat]
+        tell [CBlockStmt ifStat]
 
         -- See comment above in RunIf implementation.
         gen unlessTrue

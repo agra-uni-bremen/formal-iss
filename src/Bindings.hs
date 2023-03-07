@@ -50,7 +50,7 @@ mkBinding :: String -> Name -> (String, Ident)
 mkBinding s name = (s, mkIdent nopos s name)
 
 mkBindings :: [Name] -> (Bindings, [Name])
-mkBindings names = (M.fromList $ pairs, newNs)
+mkBindings names = (M.fromList pairs, newNs)
   where
     (newNs, pairs) = foldl fn (names, []) funcNames
     fn (n, acc) s = (tail n, mkBinding s (head n) : acc)
