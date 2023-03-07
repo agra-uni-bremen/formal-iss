@@ -30,12 +30,12 @@ evalE _ (E.FromUInt v) =
 evalE b (E.ZExtByte v) = castTo (IF.uint32 b) $ castTo (IF.uint8 b) (evalE b v)
 evalE b (E.ZExtHalf v) = castTo (IF.uint32 b) $ castTo (IF.uint16 b) (evalE b v)
 evalE b (E.SExtByte v) = do
-    let u8 = castTo (IF.uint8 b) (evalE b v)
-    let i32 = castTo (IF.int32 b) u8
+    let i8 = castTo (IF.int8 b) (evalE b v)
+    let i32 = castTo (IF.int32 b) i8
     castTo (IF.uint32 b) i32
 evalE b (E.SExtHalf v) = do
-    let u16 = castTo (IF.uint16 b) (evalE b v)
-    let i32 = castTo (IF.uint32 b) u16
+    let i16 = castTo (IF.int16 b) (evalE b v)
+    let i32 = castTo (IF.int32 b) i16
     castTo (IF.uint32 b) i32
 evalE b (E.Add e1 e2) = CBinary CAddOp (evalE b e1) (evalE b e2) undefNode
 evalE b (E.Sub e1 e2) = CBinary CSubOp (evalE b e1) (evalE b e2) undefNode
