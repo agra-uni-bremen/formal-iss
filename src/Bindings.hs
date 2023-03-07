@@ -9,7 +9,11 @@ import Language.C
 funcNames :: [String]
 funcNames =
     [ "uint8_t"        -- Typedef from stdint.h
+    , "uint16_t"       -- Typedef from stdint.h
     , "uint32_t"       -- Typedef from stdint.h
+    , "int8_t"         -- Typedef from stdint.h
+    , "int16_t"        -- Typedef from stdint.h
+    , "int32_t"        -- Typedef from stdint.h
 
     , "read_register"  -- Read register interface function
     , "write_register" -- Write register interface function

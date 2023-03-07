@@ -14,8 +14,8 @@ baseInstr =
     , SW
     , JAL
     , JALR
-    , -- , BLT
-      LUI
+    , BLT
+    , LUI
     , AUIPC
     ]
 

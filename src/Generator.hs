@@ -67,6 +67,18 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
     gen (DecodeImmB instr) = IF.instrImmB instr <$> ask
     gen (DecodeImmU instr) = IF.instrImmU instr <$> ask
     gen (DecodeImmJ instr) = IF.instrImmJ instr <$> ask
+    gen (RunIf expr ifTrue) = do
+        curBinds <- ask
+        let cond = CUnary CNegOp (evalE curBinds expr) undefNode
+
+        let ifStat = CIf cond (CReturn Nothing undefNode) Nothing undefNode
+        tell [CBlockStmt $ ifStat]
+
+        -- The previously emitted if statement would return early
+        -- if the condition is not statisfied. As such, statements
+        -- written to the Writer effect by `gen` now are only run
+        -- if the condition is statisfied.
+        gen ifTrue
     gen (ReadRegister idx) = flip IF.readReg idx <$> ask
     gen (WriteRegister idx val) = do
         curBinds <- ask
