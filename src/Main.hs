@@ -10,13 +10,44 @@ baseInstr :: [InstructionType]
 baseInstr =
     [ ADD
     , ADDI
-    , LW
-    , SW
+    , AND
+    , ANDI
+    , AUIPC
+    , BEQ
+    , BGE
+    , BGEU
+    , BLT
+    , BLTU
+    , BNE
+    , -- , EBREAK
+      -- , ECALL
+      FENCE
     , JAL
     , JALR
-    , BLT
+    , LB
+    , LBU
+    , LH
+    , LHU
     , LUI
-    , AUIPC
+    , LW
+    , OR
+    , ORI
+    , SB
+    , SH
+    , SLL
+    , SLLI
+    , SLT
+    , SLTI
+    , SLTIU
+    , SLTU
+    , SRA
+    , SRAI
+    , SRL
+    , SRLI
+    , SUB
+    , SW
+    , XOR
+    , XORI
     ]
 
 ------------------------------------------------------------------------
