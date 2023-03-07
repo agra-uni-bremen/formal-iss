@@ -36,7 +36,7 @@ int8 = typedef "int8_t"
 --  uint32_t read_register(unsigned idx);
 --
 readReg :: Bindings -> CExpr -> CExpr
-readReg binds idx = CCall (CVar funcIdent undefNode) [idx] undefNode
+readReg binds idx = funcCall funcIdent [idx]
   where
     funcIdent = getIdent "read_register" binds
 
@@ -45,7 +45,7 @@ readReg binds idx = CCall (CVar funcIdent undefNode) [idx] undefNode
 --  void write_register(unsigned idx, uint32_t val)
 --
 writeReg :: Bindings -> CExpr -> CExpr -> CExpr
-writeReg binds idx val = CCall (CVar funcIdent undefNode) [idx, val] undefNode
+writeReg binds idx val = funcCall funcIdent [idx, val]
   where
     funcIdent = getIdent "write_register" binds
 
@@ -56,7 +56,7 @@ writeReg binds idx val = CCall (CVar funcIdent undefNode) [idx, val] undefNode
 --  uint32_t read_next_pc(void)
 --
 readPC :: Bindings -> CExpr
-readPC binds = CCall (CVar funcIdent undefNode) [] undefNode
+readPC binds = funcCall funcIdent []
   where
     funcIdent = getIdent "read_next_pc" binds
 
@@ -65,7 +65,7 @@ readPC binds = CCall (CVar funcIdent undefNode) [] undefNode
 --  void write_pc(uint32_t newPC)
 --
 writePC :: Bindings -> CExpr -> CExpr
-writePC binds value = CCall (CVar funcIdent undefNode) [value] undefNode
+writePC binds value = funcCall funcIdent [value]
   where
     funcIdent = getIdent "write_pc" binds
 
@@ -76,7 +76,7 @@ writePC binds value = CCall (CVar funcIdent undefNode) [value] undefNode
 --  uint8_t load_byte(uint32_t addr)
 --
 loadByte :: Bindings -> CExpr -> CExpr
-loadByte binds addr = CCall (CVar funcIdent undefNode) [addr] undefNode
+loadByte binds addr = funcCall funcIdent [addr]
   where
     funcIdent = getIdent "load_byte" binds
 
@@ -85,7 +85,7 @@ loadByte binds addr = CCall (CVar funcIdent undefNode) [addr] undefNode
 --  uint16_t load_half(uint32_t addr)
 --
 loadHalf :: Bindings -> CExpr -> CExpr
-loadHalf binds addr = CCall (CVar funcIdent undefNode) [addr] undefNode
+loadHalf binds addr = funcCall funcIdent [addr]
   where
     funcIdent = getIdent "load_half" binds
 
@@ -94,7 +94,7 @@ loadHalf binds addr = CCall (CVar funcIdent undefNode) [addr] undefNode
 --  uint32_t load_word(uint32_t addr)
 --
 loadWord :: Bindings -> CExpr -> CExpr
-loadWord binds addr = CCall (CVar funcIdent undefNode) [addr] undefNode
+loadWord binds addr = funcCall funcIdent [addr]
   where
     funcIdent = getIdent "load_word" binds
 
@@ -103,7 +103,7 @@ loadWord binds addr = CCall (CVar funcIdent undefNode) [addr] undefNode
 --  void store_byte(uint32_t addr, uint8_t value)
 --
 storeByte :: Bindings -> CExpr -> CExpr -> CExpr
-storeByte binds addr value = CCall (CVar funcIdent undefNode) [addr, value] undefNode
+storeByte binds addr value = funcCall funcIdent [addr, value]
   where
     funcIdent = getIdent "store_byte" binds
 
@@ -112,7 +112,7 @@ storeByte binds addr value = CCall (CVar funcIdent undefNode) [addr, value] unde
 --  void store_half(uint32_t addr, uint16_t value)
 --
 storeHalf :: Bindings -> CExpr -> CExpr -> CExpr
-storeHalf binds addr value = CCall (CVar funcIdent undefNode) [addr, value] undefNode
+storeHalf binds addr value = funcCall funcIdent [addr, value]
   where
     funcIdent = getIdent "store_half" binds
 
@@ -121,14 +121,14 @@ storeHalf binds addr value = CCall (CVar funcIdent undefNode) [addr, value] unde
 --  void store_word(uint32_t addr, uint32_t value)
 --
 storeWord :: Bindings -> CExpr -> CExpr -> CExpr
-storeWord binds addr value = CCall (CVar funcIdent undefNode) [addr, value] undefNode
+storeWord binds addr value = funcCall funcIdent [addr, value]
   where
     funcIdent = getIdent "store_word" binds
 
 ------------------------------------------------------------------------
 
 getInstrPart :: String -> CExpr -> Bindings -> CExpr
-getInstrPart funcName instr binds = CCall (CVar funcIdent undefNode) [instr] undefNode
+getInstrPart funcName instr binds = funcCall funcIdent [instr]
   where
     funcIdent = getIdent funcName binds
 

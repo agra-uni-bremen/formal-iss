@@ -17,3 +17,7 @@ typedef :: String -> Bindings -> CDeclSpec
 typedef s b = CTypeSpec (CTypeDef typeIdent undefNode)
   where
     typeIdent = getIdent s b
+
+-- Create a function call node for the C AST.
+funcCall :: Ident -> [CExpr] -> CExpr
+funcCall funcIdent args = CCall (CVar funcIdent undefNode) args undefNode
