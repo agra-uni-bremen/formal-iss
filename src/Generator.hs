@@ -79,6 +79,15 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
         -- written to the Writer effect by `gen` now are only run
         -- if the condition is statisfied.
         gen ifTrue
+    gen (RunUnless expr unlessTrue) = do
+        curBinds <- ask
+        let cond = evalE curBinds expr
+
+        let ifStat = CIf cond (CReturn Nothing undefNode) Nothing undefNode
+        tell [CBlockStmt $ ifStat]
+
+        -- See comment above in RunIf implementation.
+        gen unlessTrue
     gen (ReadRegister idx) = flip IF.readReg idx <$> ask
     gen (WriteRegister idx val) = do
         curBinds <- ask
