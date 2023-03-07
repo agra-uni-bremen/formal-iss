@@ -3,11 +3,7 @@ module Interface where
 
 import Bindings
 import Language.C
-
-typedef :: String -> Bindings -> CDeclSpec
-typedef s b = CTypeSpec (CTypeDef typeIdent undefNode)
-  where
-    typeIdent = getIdent s b
+import Util
 
 -- The typedef for uint32_t from stdint.h.
 uint32 :: Bindings -> CDeclSpec

@@ -17,10 +17,6 @@ import LibRISCV.Spec.Expr qualified as E
 import LibRISCV.Spec.Operations
 import Util
 
--- Helper function to perform type conversions via casts.
-castTo :: CDeclSpec -> CExpr -> CExpr
-castTo ty expr = CCast (CDecl [ty] [] undefNode) expr undefNode
-
 -- Assumption: CExpr is an unsigned value in two's complement (uint32_t).
 evalE :: Bindings -> E.Expr CExpr -> CExpr
 evalE _ (E.FromImm e) = e
