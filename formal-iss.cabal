@@ -28,4 +28,3 @@ executable formal-iss
                     , language-c   ^>= 0.9.2
                     , freer-simple ^>= 1.2.1.2
                     , containers   ^>= 0.6.7
-                    , conversion   ^>= 1.2.1

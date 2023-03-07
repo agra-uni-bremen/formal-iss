@@ -8,8 +8,6 @@ import Bindings
 import Control.Monad.Freer
 import Control.Monad.Freer.Reader
 import Control.Monad.Freer.Writer
-import Conversion
-import Data.Word
 import Executor
 import Interface qualified as IF
 import Language.C
@@ -18,11 +16,6 @@ import LibRISCV.Spec.AST (instrSemantics)
 import LibRISCV.Spec.Expr qualified as E
 import LibRISCV.Spec.Operations
 import Util
-
--- XXX: This is a hack the Conversion type constraint needs
--- to be removed from instrSemantics (presently needed for Branches).
-instance Conversion CExpr Word32 where
-    convert = error "Word32 conversion not implemented"
 
 -- Helper function to perform type conversions via casts.
 castTo :: CDeclSpec -> CExpr -> CExpr
