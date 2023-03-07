@@ -20,7 +20,11 @@ funcNames =
     , "read_next_pc"   -- Read **next** program counter
     , "write_pc"       -- Write program counter
 
+    , "load_byte"      -- Load a byte from memory
+    , "load_half"      -- Load a half from memory
     , "load_word"      -- Load a word from memory
+    , "store_byte"     -- Store a byte in memory
+    , "store_half"     -- Store a half in memory
     , "store_word"     -- Store a word in memory
 
     , "instr_rs1"      -- Interface function for RS1 access
@@ -32,6 +36,7 @@ funcNames =
     , "instr_immB"     -- Interface function for B-immediate access
     , "instr_immU"     -- Interface function for U-immediate access
     , "instr_immJ"     -- Interface function for J-immediate access
+    , "instr_shamt"    -- Shamt value contained in the instruction
 
     , "link"           -- Local link register for JAL instruction
     ]

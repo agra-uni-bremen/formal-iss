@@ -77,12 +77,48 @@ writePC binds value = CCall (CVar funcIdent undefNode) [value] undefNode
 
 -- Interface contract:
 --
+--  uint8_t load_byte(uint32_t addr)
+--
+loadByte :: Bindings -> CExpr -> CExpr
+loadByte binds addr = CCall (CVar funcIdent undefNode) [addr] undefNode
+  where
+    funcIdent = getIdent "load_byte" binds
+
+-- Interface contract:
+--
+--  uint16_t load_half(uint32_t addr)
+--
+loadHalf :: Bindings -> CExpr -> CExpr
+loadHalf binds addr = CCall (CVar funcIdent undefNode) [addr] undefNode
+  where
+    funcIdent = getIdent "load_half" binds
+
+-- Interface contract:
+--
 --  uint32_t load_word(uint32_t addr)
 --
 loadWord :: Bindings -> CExpr -> CExpr
 loadWord binds addr = CCall (CVar funcIdent undefNode) [addr] undefNode
   where
     funcIdent = getIdent "load_word" binds
+
+-- Interface contract:
+--
+--  void store_byte(uint32_t addr, uint8_t value)
+--
+storeByte :: Bindings -> CExpr -> CExpr -> CExpr
+storeByte binds addr value = CCall (CVar funcIdent undefNode) [addr, value] undefNode
+  where
+    funcIdent = getIdent "store_byte" binds
+
+-- Interface contract:
+--
+--  void store_half(uint32_t addr, uint16_t value)
+--
+storeHalf :: Bindings -> CExpr -> CExpr -> CExpr
+storeHalf binds addr value = CCall (CVar funcIdent undefNode) [addr, value] undefNode
+  where
+    funcIdent = getIdent "store_half" binds
 
 -- Interface contract:
 --
@@ -155,3 +191,9 @@ instrImmU = getInstrPart "instr_immU"
 --
 instrImmJ :: CExpr -> Bindings -> CExpr
 instrImmJ = getInstrPart "instr_immJ"
+
+-- Interface contract
+--
+--  uint32_t instr_shamt(void *instr);
+instrShamt :: CExpr -> Bindings -> CExpr
+instrShamt = getInstrPart "instr_shamt"

@@ -4,7 +4,7 @@ packages: *.cabal
 source-repository-package
     type: git
     location: git@github.com:nmeum/libriscv.git
-    tag: 7a26144102892d5d70de7b52c924eae506ed2c31
+    tag: d3b40948b6bbaf2b92f29361a31243e03a0671fd
 
 -- The template-haskell version constraint of freer-simple is too strict.
 --

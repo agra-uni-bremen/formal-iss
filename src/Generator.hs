@@ -51,7 +51,11 @@ evalE b (E.Uge e1 e2) = CBinary CGeqOp (evalE b e1) (evalE b e2) undefNode
 evalE b (E.And e1 e2) = CBinary CAndOp (evalE b e1) (evalE b e2) undefNode
 evalE b (E.Or e1 e2) = CBinary COrOp (evalE b e1) (evalE b e2) undefNode
 evalE b (E.Xor e1 e2) = CBinary CXorOp (evalE b e1) (evalE b e2) undefNode
-evalE _ _ = error "not implemented"
+evalE b (E.LShl e1 e2) = CBinary CShlOp (evalE b e1) (evalE b e2) undefNode
+evalE b (E.LShr e1 e2) = CBinary CShrOp (evalE b e1) (evalE b e2) undefNode
+-- XXX: This assumes that the compiler implements shift on signed values
+-- using arithmetic shift which is true for GCC/clang but not standard-compliant.
+evalE b (E.AShr e1 e2) = CBinary CShrOp (castTo (IF.int32 b) (evalE b e1)) (evalE b e2) undefNode
 
 ------------------------------------------------------------------------
 
@@ -67,6 +71,7 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
     gen (DecodeImmB instr) = IF.instrImmB instr <$> ask
     gen (DecodeImmU instr) = IF.instrImmU instr <$> ask
     gen (DecodeImmJ instr) = IF.instrImmJ instr <$> ask
+    gen (DecodeShamt instr) = IF.instrShamt instr <$> ask
     gen (RunIf expr ifTrue) = do
         curBinds <- ask
         let cond = CUnary CNegOp (evalE curBinds expr) undefNode
@@ -93,9 +98,23 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
         curBinds <- ask
         let expr = IF.writeReg curBinds idx (evalE curBinds val)
         tell [CBlockStmt $ CExpr (Just expr) undefNode]
+    gen (LoadByte addr) = do
+        curBinds <- ask
+        pure $ IF.loadByte curBinds (evalE curBinds addr)
+    gen (LoadHalf addr) = do
+        curBinds <- ask
+        pure $ IF.loadHalf curBinds (evalE curBinds addr)
     gen (LoadWord addr) = do
         curBinds <- ask
         pure $ IF.loadWord curBinds (evalE curBinds addr)
+    gen (StoreByte addr value) = do
+        curBinds <- ask
+        let expr = IF.storeByte curBinds (evalE curBinds addr) (evalE curBinds value)
+        tell [CBlockStmt $ CExpr (Just expr) undefNode]
+    gen (StoreHalf addr value) = do
+        curBinds <- ask
+        let expr = IF.storeHalf curBinds (evalE curBinds addr) (evalE curBinds value)
+        tell [CBlockStmt $ CExpr (Just expr) undefNode]
     gen (StoreWord addr value) = do
         curBinds <- ask
         let expr = IF.storeWord curBinds (evalE curBinds addr) (evalE curBinds value)
@@ -114,7 +133,8 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
         curBinds <- ask
         let expr = IF.writePC binds (evalE curBinds value)
         tell [CBlockStmt $ CExpr (Just expr) undefNode]
-    gen _ = error "not implemented"
+    gen (Ebreak _) = pure ()
+    gen (Ecall _) = pure ()
 
 generate' :: [Name] -> InstructionType -> (CFunDef, [Name])
 generate' (nFunc : nInstr : nPC : ns) inst = (makeExecutor funcIdent funcArgs block, newNs)
