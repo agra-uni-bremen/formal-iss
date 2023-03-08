@@ -26,9 +26,6 @@ pcArg binds pcIdent =
 
 ------------------------------------------------------------------------
 
-noReturn :: CDeclSpec
-noReturn = CTypeSpec $ CVoidType undefNode
-
 mkFuncDeclr :: Ident -> [CDecl] -> CDeclr
 mkFuncDeclr ident args = CDeclr (Just ident) [mkFuncDeclr' args] Nothing [] undefNode
   where
@@ -38,8 +35,11 @@ mkFuncDeclr ident args = CDeclr (Just ident) [mkFuncDeclr' args] Nothing [] unde
 makeExecutor :: Ident -> [CDecl] -> CStat -> CFunDef
 makeExecutor funcIdent args statement =
     CFunDef
-        [noReturn]
+        [CFunSpec (CInlineQual undefNode), voidReturn]
         (mkFuncDeclr funcIdent args)
         []
         statement
         undefNode
+  where
+    voidReturn :: CDeclSpec
+    voidReturn = CTypeSpec $ CVoidType undefNode
