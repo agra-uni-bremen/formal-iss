@@ -135,6 +135,10 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
         curBinds <- ask
         let expr = IF.writePC binds (evalE curBinds value)
         tell [CBlockStmt $ CExpr (Just expr) undefNode]
+    gen (Exception _ _) = do
+        curBinds <- ask
+        let abort = funcCall (getIdent "abort" curBinds) []
+        tell [CBlockStmt $ CExpr (Just abort) undefNode]
     gen (Ebreak _) = pure ()
     gen (Ecall _) = pure ()
 
