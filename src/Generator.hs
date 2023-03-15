@@ -67,6 +67,13 @@ evalE b (E.AShr e1 e2) = CBinary CShrOp (castTo (IF.int32 b) (evalE b e1)) (eval
 -- Since C is an imperative programming language we need to be able to emit both statements
 -- and expressions. This is achieved by emitting statements as a "side effect" through
 -- an algebraic State effect.
+--
+-- The following invariants need to hold for each Operations handler:
+--
+--   1. Each handler can only emit a maximum of one statement.
+--   2. Handlers for `Operations ()` must emit exactly one statement.
+--
+-- Failure to satisfy these invariants will result in a runtime error.
 buildSemantics :: Bindings -> Eff '[Operations CExpr] w -> [CBlockItem]
 buildSemantics binds req = snd $ run (runStatement (runReader binds (reinterpret2 gen req)))
   where
