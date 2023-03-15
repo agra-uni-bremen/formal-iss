@@ -35,7 +35,7 @@ mkFuncDeclr ident args = CDeclr (Just ident) [mkFuncDeclr' args] Nothing [] unde
 makeExecutor :: Ident -> [CDecl] -> CStat -> CFunDef
 makeExecutor funcIdent args statement =
     CFunDef
-        [CFunSpec (CInlineQual undefNode), voidReturn]
+        [CStorageSpec (CStatic undefNode), CFunSpec (CInlineQual undefNode), voidReturn]
         (mkFuncDeclr funcIdent args)
         []
         statement
