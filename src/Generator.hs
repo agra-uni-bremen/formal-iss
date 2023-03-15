@@ -15,7 +15,6 @@ import LibRISCV.Decoder.Opcode (InstructionType)
 import LibRISCV.Spec.AST (instrSemantics)
 import LibRISCV.Spec.Expr qualified as E
 import LibRISCV.Spec.Operations
-import Statement (Statement, runStatement)
 import Statement qualified as S
 import Util
 
@@ -75,9 +74,9 @@ evalE b (E.AShr e1 e2) = CBinary CShrOp (castTo (IF.int32 b) (evalE b e1)) (eval
 --
 -- Failure to satisfy these invariants will result in a runtime error.
 buildSemantics :: Bindings -> Eff '[Operations CExpr] w -> [CBlockItem]
-buildSemantics binds req = snd $ run (runStatement (runReader binds (reinterpret2 gen req)))
+buildSemantics binds req = snd $ run (S.runStatement (runReader binds (reinterpret2 gen req)))
   where
-    gen :: Operations CExpr ~> Eff '[Reader Bindings, Statement]
+    gen :: Operations CExpr ~> Eff '[Reader Bindings, S.Statement]
     gen (DecodeRD instr) = IF.instrRD instr <$> ask
     gen (DecodeRS1 instr) = IF.instrRS1 instr <$> ask
     gen (DecodeRS2 instr) = IF.instrRS2 instr <$> ask
