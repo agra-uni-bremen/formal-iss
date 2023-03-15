@@ -40,6 +40,9 @@ funcNames =
 
     -- TODO: This is a local variable and should not be in Bindings.
     , "link"           -- Local link register for JAL instruction
+
+    -- abort(3) from stdlib.h
+    , "abort"          -- XXX: Presently used to indicate a misaligned PC
     ]
 {- FOURMOLU_ENABLE -}
 

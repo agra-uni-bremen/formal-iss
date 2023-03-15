@@ -7,7 +7,7 @@ module Generator (generate, evalE) where
 import Bindings
 import Control.Monad.Freer
 import Control.Monad.Freer.Reader
-import Control.Monad.Freer.Writer
+import Data.Maybe
 import Executor
 import Interface qualified as IF
 import Language.C
@@ -15,6 +15,8 @@ import LibRISCV.Decoder.Opcode (InstructionType)
 import LibRISCV.Spec.AST (instrSemantics)
 import LibRISCV.Spec.Expr qualified as E
 import LibRISCV.Spec.Operations
+import Statement (Statement, runStatement)
+import Statement qualified as S
 import Util
 
 -- Assumption: CExpr is an unsigned value in two's complement (uint32_t).
@@ -61,10 +63,21 @@ evalE b (E.AShr e1 e2) = CBinary CShrOp (castTo (IF.int32 b) (evalE b e1)) (eval
 
 ------------------------------------------------------------------------
 
+-- Generate C code for the abstract semantics description of a given instruction from LibRISCV.
+-- Since C is an imperative programming language we need to be able to emit both statements
+-- and expressions. This is achieved by emitting statements as a "side effect" through
+-- an algebraic State effect.
+--
+-- The following invariants need to hold for each Operations handler:
+--
+--   1. Each handler can only emit a maximum of one statement.
+--   2. Handlers for `Operations ()` must emit exactly one statement.
+--
+-- Failure to satisfy these invariants will result in a runtime error.
 buildSemantics :: Bindings -> Eff '[Operations CExpr] w -> [CBlockItem]
-buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 gen req)))
+buildSemantics binds req = snd $ run (runStatement (runReader binds (reinterpret2 gen req)))
   where
-    gen :: Operations CExpr ~> Eff '[Reader Bindings, Writer [CBlockItem]]
+    gen :: Operations CExpr ~> Eff '[Reader Bindings, Statement]
     gen (DecodeRD instr) = IF.instrRD instr <$> ask
     gen (DecodeRS1 instr) = IF.instrRS1 instr <$> ask
     gen (DecodeRS2 instr) = IF.instrRS2 instr <$> ask
@@ -75,31 +88,33 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
     gen (DecodeImmJ instr) = IF.instrImmJ instr <$> ask
     gen (DecodeShamt instr) = IF.instrShamt instr <$> ask
     gen (RunIf expr ifTrue) = do
-        curBinds <- ask
-        let cond = CUnary CNegOp (evalE curBinds expr) undefNode
-
-        let ifStat = CIf cond (CReturn Nothing undefNode) Nothing undefNode
-        tell [CBlockStmt ifStat]
-
-        -- The previously emitted if statement would return early
-        -- if the condition is not statisfied. As such, statements
-        -- written to the Writer effect by `gen` now are only run
-        -- if the condition is statisfied.
         gen ifTrue
-    gen (RunUnless expr unlessTrue) = do
+        trueBlock <- S.pop
+
         curBinds <- ask
         let cond = evalE curBinds expr
+        let ifStat = CIf cond (CCompound [] [fromJust trueBlock] undefNode) Nothing undefNode
 
-        let ifStat = CIf cond (CReturn Nothing undefNode) Nothing undefNode
-        tell [CBlockStmt ifStat]
-
-        -- See comment above in RunIf implementation.
+        S.push (CBlockStmt ifStat)
+    gen (RunUnless expr unlessTrue) = do
         gen unlessTrue
+        unlessBlock <- S.pop
+
+        curBinds <- ask
+        let cond = evalE curBinds expr
+        let ifStat =
+                CIf
+                    cond
+                    (CCompound [] [] undefNode)
+                    (Just $ CCompound [] [fromJust unlessBlock] undefNode)
+                    undefNode
+
+        S.push (CBlockStmt ifStat)
     gen (ReadRegister idx) = flip IF.readReg idx <$> ask
     gen (WriteRegister idx val) = do
         curBinds <- ask
         let expr = IF.writeReg curBinds idx (evalE curBinds val)
-        tell [CBlockStmt $ CExpr (Just expr) undefNode]
+        S.push (CBlockStmt $ CExpr (Just expr) undefNode)
     gen (LoadByte addr) = do
         curBinds <- ask
         pure $ IF.loadByte curBinds (evalE curBinds addr)
@@ -112,15 +127,15 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
     gen (StoreByte addr value) = do
         curBinds <- ask
         let expr = IF.storeByte curBinds (evalE curBinds addr) (evalE curBinds value)
-        tell [CBlockStmt $ CExpr (Just expr) undefNode]
+        S.push (CBlockStmt $ CExpr (Just expr) undefNode)
     gen (StoreHalf addr value) = do
         curBinds <- ask
         let expr = IF.storeHalf curBinds (evalE curBinds addr) (evalE curBinds value)
-        tell [CBlockStmt $ CExpr (Just expr) undefNode]
+        S.push (CBlockStmt $ CExpr (Just expr) undefNode)
     gen (StoreWord addr value) = do
         curBinds <- ask
         let expr = IF.storeWord curBinds (evalE curBinds addr) (evalE curBinds value)
-        tell [CBlockStmt $ CExpr (Just expr) undefNode]
+        S.push (CBlockStmt $ CExpr (Just expr) undefNode)
     gen ReadPC = do
         curBinds <- ask
         let pc = IF.readPC curBinds
@@ -129,12 +144,16 @@ buildSemantics binds req = snd $ run (runWriter (runReader binds (reinterpret2 g
         let declr = CDeclr (Just ident) [] Nothing [] undefNode
         let var = CDecl [IF.uint32 curBinds] [(Just declr, Just (CInitExpr pc undefNode), Nothing)] undefNode
 
-        tell [CBlockDecl var]
+        S.push (CBlockDecl var)
         pure $ CVar ident undefNode
     gen (WritePC value) = do
         curBinds <- ask
         let expr = IF.writePC binds (evalE curBinds value)
-        tell [CBlockStmt $ CExpr (Just expr) undefNode]
+        S.push (CBlockStmt $ CExpr (Just expr) undefNode)
+    gen (Exception _ _) = do
+        curBinds <- ask
+        let abort = funcCall (getIdent "abort" curBinds) []
+        S.push (CBlockStmt $ CExpr (Just abort) undefNode)
     gen (Ebreak _) = pure ()
     gen (Ecall _) = pure ()
 

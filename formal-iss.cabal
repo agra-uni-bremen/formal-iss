@@ -21,6 +21,7 @@ executable formal-iss
                     , Bindings
                     , Interface
                     , Executor
+                    , Statement
                     , Util
 
     build-depends:    base         ^>= 4.17.0.0
