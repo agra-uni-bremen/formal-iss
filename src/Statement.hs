@@ -9,16 +9,16 @@ import Control.Monad.Freer
 import Control.Monad.Freer.State
 import Language.C
 
-type Statement = State ([CBlockItem])
+type Statement = State [CBlockItem]
 
-push :: forall effs. Member (Statement) effs => CBlockItem -> Eff effs ()
-push stat = modify (\lst -> stat : lst)
+push :: forall effs. Member Statement effs => CBlockItem -> Eff effs ()
+push stat = modify (stat :)
 
 pop :: forall effs. Member (State [CBlockItem]) effs => Eff effs (Maybe CBlockItem)
 pop = do
     s <- get @[CBlockItem]
     if null s
-        then pure $ Nothing
+        then pure Nothing
         else do
             modify @[CBlockItem] tail
             pure $ Just (head s)
@@ -26,4 +26,4 @@ pop = do
 runStatement :: forall effs a. Eff (Statement : effs) a -> Eff effs (a, [CBlockItem])
 runStatement eff = do
     (a, s) <- runState [] eff
-    pure $ (a, reverse s)
+    pure (a, reverse s)
