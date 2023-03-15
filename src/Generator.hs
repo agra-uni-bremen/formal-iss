@@ -90,14 +90,19 @@ buildSemantics binds req = snd $ run (runStatement (runReader binds (reinterpret
 
         S.push (CBlockStmt ifStat)
     gen (RunUnless expr unlessTrue) = do
+        gen unlessTrue
+        unlessBlock <- S.pop
+
         curBinds <- ask
         let cond = evalE curBinds expr
+        let ifStat =
+                CIf
+                    cond
+                    (CCompound [] [] undefNode)
+                    (Just $ CCompound [] [fromJust unlessBlock] undefNode)
+                    undefNode
 
-        let ifStat = CIf cond (CReturn Nothing undefNode) Nothing undefNode
         S.push (CBlockStmt ifStat)
-
-        -- See comment above in RunIf implementation.
-        gen unlessTrue
     gen (ReadRegister idx) = flip IF.readReg idx <$> ask
     gen (WriteRegister idx val) = do
         curBinds <- ask
