@@ -14,7 +14,7 @@ import Language.C
 import LibRISCV.Decoder.Opcode (InstructionType)
 import LibRISCV.Spec.AST (instrSemantics)
 import LibRISCV.Spec.Expr qualified as E
-import LibRISCV.Spec.Operations
+import LibRISCV.Spec.Operations hiding ((>>))
 import Statement qualified as S
 import Util
 
@@ -89,15 +89,21 @@ buildSemantics binds req = snd $ run (S.runStatement (runReader binds (reinterpr
     gen (RunIf expr ifTrue) = do
         gen ifTrue
         trueBlock <- S.pop
+        let block = case fromJust trueBlock of
+                CBlockStmt c@(CCompound _ _ _) -> c
+                e -> CCompound [] [e] undefNode
 
         curBinds <- ask
         let cond = evalE curBinds expr
-        let ifStat = CIf cond (CCompound [] [fromJust trueBlock] undefNode) Nothing undefNode
+        let ifStat = CIf cond block Nothing undefNode
 
         S.push (CBlockStmt ifStat)
     gen (RunUnless expr unlessTrue) = do
         gen unlessTrue
         unlessBlock <- S.pop
+        let block = case fromJust unlessBlock of
+                CBlockStmt c@(CCompound _ _ _) -> c
+                e -> CCompound [] [e] undefNode
 
         curBinds <- ask
         let cond = evalE curBinds expr
@@ -105,7 +111,7 @@ buildSemantics binds req = snd $ run (S.runStatement (runReader binds (reinterpr
                 CIf
                     cond
                     (CCompound [] [] undefNode)
-                    (Just $ CCompound [] [fromJust unlessBlock] undefNode)
+                    (Just $ block)
                     undefNode
 
         S.push (CBlockStmt ifStat)
@@ -155,6 +161,13 @@ buildSemantics binds req = snd $ run (S.runStatement (runReader binds (reinterpr
         S.push (CBlockStmt $ CExpr (Just abort) undefNode)
     gen (Ebreak _) = pure ()
     gen (Ecall _) = pure ()
+    gen (Append__ o1 o2) = do
+        s1 <- gen o1 >> S.pop
+        e2 <- gen o2
+        s2 <- S.pop
+
+        S.push (CBlockStmt $ CCompound [] [fromJust s1, fromJust s2] undefNode)
+        pure $ e2
 
 generate' :: Bindings -> [Name] -> InstructionType -> (CFunDef, [Name])
 generate' binds (nFunc : nInstr : nPC : ns) inst = (makeExecutor funcIdent funcArgs block, ns)
