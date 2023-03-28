@@ -85,15 +85,15 @@ buildSemantics :: CExpr -> Bindings -> Eff '[Operations CExpr] w -> [CBlockItem]
 buildSemantics core binds req = snd $ run (S.runStatement (runReader binds (reinterpret2 gen req)))
   where
     gen :: Operations CExpr ~> Eff '[Reader Bindings, S.Statement]
-    gen (DecodeRD instr) = IF.instrRD instr <$> ask
-    gen (DecodeRS1 instr) = IF.instrRS1 instr <$> ask
-    gen (DecodeRS2 instr) = IF.instrRS2 instr <$> ask
-    gen (DecodeImmI instr) = IF.instrImmI instr <$> ask
-    gen (DecodeImmS instr) = IF.instrImmS instr <$> ask
-    gen (DecodeImmB instr) = IF.instrImmB instr <$> ask
-    gen (DecodeImmU instr) = IF.instrImmU instr <$> ask
-    gen (DecodeImmJ instr) = IF.instrImmJ instr <$> ask
-    gen (DecodeShamt instr) = IF.instrShamt instr <$> ask
+    gen (DecodeRD instr) = IF.instrPart IF.RD instr <$> ask
+    gen (DecodeRS1 instr) = IF.instrPart IF.RS1 instr <$> ask
+    gen (DecodeRS2 instr) = IF.instrPart IF.RS2 instr <$> ask
+    gen (DecodeImmI instr) = IF.instrPart IF.ImmI instr <$> ask
+    gen (DecodeImmS instr) = IF.instrPart IF.ImmS instr <$> ask
+    gen (DecodeImmB instr) = IF.instrPart IF.ImmB instr <$> ask
+    gen (DecodeImmU instr) = IF.instrPart IF.ImmU instr <$> ask
+    gen (DecodeImmJ instr) = IF.instrPart IF.ImmJ instr <$> ask
+    gen (DecodeShamt instr) = IF.instrPart IF.Shamt instr <$> ask
     gen (RunIf expr ifTrue) = do
         gen ifTrue
         trueBlock <- S.pop

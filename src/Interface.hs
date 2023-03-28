@@ -112,69 +112,35 @@ store Word = store' "store_word"
 
 ------------------------------------------------------------------------
 
-getInstrPart :: String -> CExpr -> Bindings -> CExpr
-getInstrPart funcName instr binds = funcCall funcIdent [instr]
+-- Information that can be extracted from an instruction.
+data InstrPart = RD | RS1 | RS2 | ImmI | ImmS | ImmB | ImmU | ImmJ | Shamt
+
+instrPart' :: String -> CExpr -> Bindings -> CExpr
+instrPart' funcName instr binds = funcCall funcIdent [instr]
   where
     funcIdent = getIdent funcName binds
 
+-- Extract information from a decoded instruction.
+--
 -- Interface contract:
 --
 --  uint32_t instr_rs1(void *instr);
---
-instrRS1 :: CExpr -> Bindings -> CExpr
-instrRS1 = getInstrPart "instr_rs1"
-
--- Interface contract:
---
 --  uint32_t instr_rs2(void *instr);
---
-instrRS2 :: CExpr -> Bindings -> CExpr
-instrRS2 = getInstrPart "instr_rs2"
-
--- Interface contract:
---
 --  uint32_t instr_rd(void *instr);
---
-instrRD :: CExpr -> Bindings -> CExpr
-instrRD = getInstrPart "instr_rd"
-
--- Interface contract:
---
 --  uint32_t instr_immI(void *instr);
---
-instrImmI :: CExpr -> Bindings -> CExpr
-instrImmI = getInstrPart "instr_immI"
-
--- Interface contract:
---
 --  uint32_t instr_immS(void *instr);
---
-instrImmS :: CExpr -> Bindings -> CExpr
-instrImmS = getInstrPart "instr_immS"
-
--- Interface contract:
---
 --  uint32_t instr_immB(void *instr);
---
-instrImmB :: CExpr -> Bindings -> CExpr
-instrImmB = getInstrPart "instr_immB"
-
--- Interface contract:
---
 --  uint32_t instr_immU(void *instr);
---
-instrImmU :: CExpr -> Bindings -> CExpr
-instrImmU = getInstrPart "instr_immU"
-
--- Interface contract:
---
 --  uint32_t instr_immJ(void *instr);
---
-instrImmJ :: CExpr -> Bindings -> CExpr
-instrImmJ = getInstrPart "instr_immJ"
-
--- Interface contract
---
 --  uint32_t instr_shamt(void *instr);
-instrShamt :: CExpr -> Bindings -> CExpr
-instrShamt = getInstrPart "instr_shamt"
+--
+instrPart :: InstrPart -> CExpr -> Bindings -> CExpr
+instrPart RD = instrPart' "instr_rd"
+instrPart RS1 = instrPart' "instr_rs1"
+instrPart RS2 = instrPart' "instr_rs2"
+instrPart ImmI = instrPart' "instr_immI"
+instrPart ImmS = instrPart' "instr_immS"
+instrPart ImmB = instrPart' "instr_immB"
+instrPart ImmU = instrPart' "instr_immU"
+instrPart ImmJ = instrPart' "instr_immJ"
+instrPart Shamt = instrPart' "instr_shamt"
