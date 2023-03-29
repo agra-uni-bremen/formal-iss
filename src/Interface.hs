@@ -33,19 +33,19 @@ int8 = typedef "int8_t"
 
 -- Interface contract:
 --
---  uint32_t read_register(unsigned idx);
+--  uint32_t read_register(void *core, unsigned idx);
 --
-readReg :: Bindings -> CExpr -> CExpr
-readReg binds idx = funcCall funcIdent [idx]
+readReg :: Bindings -> CExpr -> CExpr -> CExpr
+readReg binds core idx = funcCall funcIdent [core, idx]
   where
     funcIdent = getIdent "read_register" binds
 
 -- Interface contract:
 --
---  void write_register(unsigned idx, uint32_t val)
+--  void write_register(void *core, unsigned idx, uint32_t val)
 --
-writeReg :: Bindings -> CExpr -> CExpr -> CExpr
-writeReg binds idx val = funcCall funcIdent [idx, val]
+writeReg :: Bindings -> CExpr -> CExpr -> CExpr -> CExpr
+writeReg binds core idx val = funcCall funcIdent [core, idx, val]
   where
     funcIdent = getIdent "write_register" binds
 
@@ -53,19 +53,19 @@ writeReg binds idx val = funcCall funcIdent [idx, val]
 
 -- Interface contract:
 --
---  uint32_t read_next_pc(void)
+--  uint32_t read_next_pc(void *core)
 --
-readPC :: Bindings -> CExpr
-readPC binds = funcCall funcIdent []
+readPC :: Bindings -> CExpr -> CExpr
+readPC binds core = funcCall funcIdent [core]
   where
     funcIdent = getIdent "read_next_pc" binds
 
 -- Interface contract:
 --
---  void write_pc(uint32_t newPC)
+--  void write_pc(void *core, uint32_t newPC)
 --
-writePC :: Bindings -> CExpr -> CExpr
-writePC binds value = funcCall funcIdent [value]
+writePC :: Bindings -> CExpr -> CExpr -> CExpr
+writePC binds core value = funcCall funcIdent [core, value]
   where
     funcIdent = getIdent "write_pc" binds
 
@@ -75,8 +75,8 @@ writePC binds value = funcCall funcIdent [value]
 --
 --  uint8_t load_byte(uint32_t addr)
 --
-loadByte :: Bindings -> CExpr -> CExpr
-loadByte binds addr = funcCall funcIdent [addr]
+loadByte :: Bindings -> CExpr -> CExpr -> CExpr
+loadByte binds core addr = funcCall funcIdent [core, addr]
   where
     funcIdent = getIdent "load_byte" binds
 
@@ -84,8 +84,8 @@ loadByte binds addr = funcCall funcIdent [addr]
 --
 --  uint16_t load_half(uint32_t addr)
 --
-loadHalf :: Bindings -> CExpr -> CExpr
-loadHalf binds addr = funcCall funcIdent [addr]
+loadHalf :: Bindings -> CExpr -> CExpr -> CExpr
+loadHalf binds core addr = funcCall funcIdent [core, addr]
   where
     funcIdent = getIdent "load_half" binds
 
@@ -93,8 +93,8 @@ loadHalf binds addr = funcCall funcIdent [addr]
 --
 --  uint32_t load_word(uint32_t addr)
 --
-loadWord :: Bindings -> CExpr -> CExpr
-loadWord binds addr = funcCall funcIdent [addr]
+loadWord :: Bindings -> CExpr -> CExpr -> CExpr
+loadWord binds core addr = funcCall funcIdent [core, addr]
   where
     funcIdent = getIdent "load_word" binds
 
@@ -102,8 +102,8 @@ loadWord binds addr = funcCall funcIdent [addr]
 --
 --  void store_byte(uint32_t addr, uint8_t value)
 --
-storeByte :: Bindings -> CExpr -> CExpr -> CExpr
-storeByte binds addr value = funcCall funcIdent [addr, value]
+storeByte :: Bindings -> CExpr -> CExpr -> CExpr -> CExpr
+storeByte binds core addr value = funcCall funcIdent [core, addr, value]
   where
     funcIdent = getIdent "store_byte" binds
 
@@ -111,8 +111,8 @@ storeByte binds addr value = funcCall funcIdent [addr, value]
 --
 --  void store_half(uint32_t addr, uint16_t value)
 --
-storeHalf :: Bindings -> CExpr -> CExpr -> CExpr
-storeHalf binds addr value = funcCall funcIdent [addr, value]
+storeHalf :: Bindings -> CExpr -> CExpr -> CExpr -> CExpr
+storeHalf binds core addr value = funcCall funcIdent [core, addr, value]
   where
     funcIdent = getIdent "store_half" binds
 
@@ -120,8 +120,8 @@ storeHalf binds addr value = funcCall funcIdent [addr, value]
 --
 --  void store_word(uint32_t addr, uint32_t value)
 --
-storeWord :: Bindings -> CExpr -> CExpr -> CExpr
-storeWord binds addr value = funcCall funcIdent [addr, value]
+storeWord :: Bindings -> CExpr -> CExpr -> CExpr -> CExpr
+storeWord binds core addr value = funcCall funcIdent [core, addr, value]
   where
     funcIdent = getIdent "store_word" binds
 

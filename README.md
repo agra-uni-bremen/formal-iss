@@ -19,20 +19,20 @@ In order to integrate the generated instruction implementations with an existing
     #include <stdint.h>
 
     /* Register file */
-    uint32_t read_register(unsigned idx);
-    void write_register(unsigned idx, uint32_t value);
+    uint32_t read_register(void *core, unsigned idx);
+    void write_register(void *core, unsigned idx, uint32_t value);
 
     /* Program counter */
-    uint32_t read_next_pc(void);
-    void write_pc(uint32_t newPC);
+    uint32_t read_next_pc(void *core);
+    void write_pc(void *core, uint32_t newPC);
 
     /* Byte-addressable memory */
-    uint8_t load_byte(uint32_t addr);
-    uint16_t load_half(uint32_t addr);
-    uint32_t load_word(uint32_t addr);
-    void store_byte(uint32_t addr, uint8_t value);
-    void store_half(uint32_t addr, uint16_t value);
-    void store_word(uint32_t addr, uint32_t value);
+    uint8_t load_byte(void *core, uint32_t addr);
+    uint16_t load_half(void *core, uint32_t addr);
+    uint32_t load_word(void *core, uint32_t addr);
+    void store_byte(void *core, uint32_t addr, uint8_t value);
+    void store_half(void *core, uint32_t addr, uint16_t value);
+    void store_word(void *core, uint32_t addr, uint32_t value);
 
     /* Decoder interface */
     uint32_t instr_rs1(void *instr);

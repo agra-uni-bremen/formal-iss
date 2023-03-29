@@ -1,18 +1,18 @@
-module Executor (instrArg, pcArg, makeExecutor) where
+module Executor (voidPtrArg, pcArg, makeExecutor) where
 
 import Bindings
 import Interface qualified as IF
 import Language.C
 
-instrArg :: Ident -> CDecl
-instrArg instrIdent =
+voidPtrArg :: Ident -> CDecl
+voidPtrArg instrIdent =
     CDecl
         [CTypeSpec $ CVoidType undefNode]
-        [(Just instrArg', Nothing, Nothing)]
+        [(Just voidPtrArg', Nothing, Nothing)]
         undefNode
   where
-    instrArg' :: CDeclr
-    instrArg' = CDeclr (Just instrIdent) [CPtrDeclr [] undefNode] Nothing [] undefNode
+    voidPtrArg' :: CDeclr
+    voidPtrArg' = CDeclr (Just instrIdent) [CPtrDeclr [] undefNode] Nothing [] undefNode
 
 pcArg :: Bindings -> Ident -> CDecl
 pcArg binds pcIdent =

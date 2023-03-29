@@ -73,8 +73,8 @@ evalE b (E.AShr e1 e2) = CBinary CShrOp (castTo (IF.int32 b) (evalE b e1)) (eval
 --   2. Handlers for `Operations ()` must emit exactly one statement.
 --
 -- Failure to satisfy these invariants will result in a runtime error.
-buildSemantics :: Bindings -> Eff '[Operations CExpr] w -> [CBlockItem]
-buildSemantics binds req = snd $ run (S.runStatement (runReader binds (reinterpret2 gen req)))
+buildSemantics :: CExpr -> Bindings -> Eff '[Operations CExpr] w -> [CBlockItem]
+buildSemantics core binds req = snd $ run (S.runStatement (runReader binds (reinterpret2 gen req)))
   where
     gen :: Operations CExpr ~> Eff '[Reader Bindings, S.Statement]
     gen (DecodeRD instr) = IF.instrRD instr <$> ask
@@ -115,35 +115,35 @@ buildSemantics binds req = snd $ run (S.runStatement (runReader binds (reinterpr
                     undefNode
 
         S.push (CBlockStmt ifStat)
-    gen (ReadRegister idx) = flip IF.readReg idx <$> ask
+    gen (ReadRegister idx) = ask >>= \b -> pure $ IF.readReg b core idx
     gen (WriteRegister idx val) = do
         curBinds <- ask
-        let expr = IF.writeReg curBinds idx (evalE curBinds val)
+        let expr = IF.writeReg curBinds core idx (evalE curBinds val)
         S.push (CBlockStmt $ CExpr (Just expr) undefNode)
     gen (LoadByte addr) = do
         curBinds <- ask
-        pure $ IF.loadByte curBinds (evalE curBinds addr)
+        pure $ IF.loadByte curBinds core (evalE curBinds addr)
     gen (LoadHalf addr) = do
         curBinds <- ask
-        pure $ IF.loadHalf curBinds (evalE curBinds addr)
+        pure $ IF.loadHalf curBinds core (evalE curBinds addr)
     gen (LoadWord addr) = do
         curBinds <- ask
-        pure $ IF.loadWord curBinds (evalE curBinds addr)
+        pure $ IF.loadWord curBinds core (evalE curBinds addr)
     gen (StoreByte addr value) = do
         curBinds <- ask
-        let expr = IF.storeByte curBinds (evalE curBinds addr) (evalE curBinds value)
+        let expr = IF.storeByte curBinds core (evalE curBinds addr) (evalE curBinds value)
         S.push (CBlockStmt $ CExpr (Just expr) undefNode)
     gen (StoreHalf addr value) = do
         curBinds <- ask
-        let expr = IF.storeHalf curBinds (evalE curBinds addr) (evalE curBinds value)
+        let expr = IF.storeHalf curBinds core (evalE curBinds addr) (evalE curBinds value)
         S.push (CBlockStmt $ CExpr (Just expr) undefNode)
     gen (StoreWord addr value) = do
         curBinds <- ask
-        let expr = IF.storeWord curBinds (evalE curBinds addr) (evalE curBinds value)
+        let expr = IF.storeWord curBinds core (evalE curBinds addr) (evalE curBinds value)
         S.push (CBlockStmt $ CExpr (Just expr) undefNode)
     gen ReadPC = do
         curBinds <- ask
-        let pc = IF.readPC curBinds
+        let pc = IF.readPC curBinds core
 
         let ident = getIdent "link" curBinds
         let declr = CDeclr (Just ident) [] Nothing [] undefNode
@@ -153,7 +153,7 @@ buildSemantics binds req = snd $ run (S.runStatement (runReader binds (reinterpr
         pure $ CVar ident undefNode
     gen (WritePC value) = do
         curBinds <- ask
-        let expr = IF.writePC binds (evalE curBinds value)
+        let expr = IF.writePC binds core (evalE curBinds value)
         S.push (CBlockStmt $ CExpr (Just expr) undefNode)
     gen (Exception _ _) = do
         curBinds <- ask
@@ -170,11 +170,15 @@ buildSemantics binds req = snd $ run (S.runStatement (runReader binds (reinterpr
         pure $ e2
 
 generate' :: Bindings -> [Name] -> InstructionType -> (CFunDef, [Name])
-generate' binds (nFunc : nInstr : nPC : ns) inst = (makeExecutor funcIdent funcArgs block, ns)
+generate' binds (nFunc : nCore : nInstr : nPC : ns) inst = (makeExecutor funcIdent funcArgs block, ns)
   where
     -- Identifier for the generated function itself.
     funcIdent :: Ident
     funcIdent = mkIdent nopos ("exec_" ++ foldcase (show inst)) nFunc
+
+    -- Identifier for the core argument of the executor functions.
+    coreIdent :: Ident
+    coreIdent = mkIdent nopos "core" nCore
 
     -- Identifier for the instruction argument of the function.
     instrIdent :: Ident
@@ -186,13 +190,13 @@ generate' binds (nFunc : nInstr : nPC : ns) inst = (makeExecutor funcIdent funcA
 
     -- Function arguments for the executor.
     funcArgs :: [CDecl]
-    funcArgs = [pcArg binds pcIdent, instrArg instrIdent]
+    funcArgs = [voidPtrArg coreIdent, pcArg binds pcIdent, voidPtrArg instrIdent]
 
     cflow :: Eff '[Operations CExpr] ()
     cflow = instrSemantics @CExpr (CVar pcIdent undefNode) (CVar instrIdent undefNode) inst
 
     block :: CStat
-    block = CCompound [] (buildSemantics binds cflow) undefNode
+    block = CCompound [] (buildSemantics (CVar coreIdent undefNode) binds cflow) undefNode
 generate' _ _ _ = error "invalid name list"
 
 generate :: [InstructionType] -> [CFunDef]
