@@ -71,59 +71,44 @@ writePC binds core value = funcCall funcIdent [core, value]
 
 ------------------------------------------------------------------------
 
--- Interface contract:
---
---  uint8_t load_byte(uint32_t addr)
---
-loadByte :: Bindings -> CExpr -> CExpr -> CExpr
-loadByte binds core addr = funcCall funcIdent [core, addr]
-  where
-    funcIdent = getIdent "load_byte" binds
+-- Size of a value that should be stored/loaded.
+data ValueSize = Byte | Half | Word
 
--- Interface contract:
---
---  uint16_t load_half(uint32_t addr)
---
-loadHalf :: Bindings -> CExpr -> CExpr -> CExpr
-loadHalf binds core addr = funcCall funcIdent [core, addr]
+load' :: String -> Bindings -> CExpr -> CExpr -> CExpr
+load' funcName binds core addr = funcCall funcIdent [core, addr]
   where
-    funcIdent = getIdent "load_half" binds
+    funcIdent = getIdent funcName binds
 
+-- Load a value of the given size from the memory of the given core at the given address.
+--
 -- Interface contract:
 --
---  uint32_t load_word(uint32_t addr)
+--  uint8_t load_byte(void *core, uint32_t addr);
+--  uint16_t load_half(void *core, uint32_t addr);
+--  uint32_t load_word(void *core, uint32_t addr);
 --
-loadWord :: Bindings -> CExpr -> CExpr -> CExpr
-loadWord binds core addr = funcCall funcIdent [core, addr]
-  where
-    funcIdent = getIdent "load_word" binds
+load :: ValueSize -> Bindings -> CExpr -> CExpr -> CExpr
+load Byte = load' "load_byte"
+load Half = load' "load_half"
+load Word = load' "load_word"
 
--- Interface contract:
---
---  void store_byte(uint32_t addr, uint8_t value)
---
-storeByte :: Bindings -> CExpr -> CExpr -> CExpr -> CExpr
-storeByte binds core addr value = funcCall funcIdent [core, addr, value]
+store' :: String -> Bindings -> CExpr -> CExpr -> CExpr -> CExpr
+store' funcName binds core addr value = funcCall funcIdent [core, addr, value]
   where
-    funcIdent = getIdent "store_byte" binds
+    funcIdent = getIdent funcName binds
 
+-- Store a given value of the given size in the memory of the given core at a given address.
+--
 -- Interface contract:
 --
---  void store_half(uint32_t addr, uint16_t value)
+--  void store_byte(void *core, uint32_t addr, uint8_t value);
+--  void store_half(void *core, uint32_t addr, uint16_t value);
+--  void store_word(void *core, uint32_t addr, uint32_t value);
 --
-storeHalf :: Bindings -> CExpr -> CExpr -> CExpr -> CExpr
-storeHalf binds core addr value = funcCall funcIdent [core, addr, value]
-  where
-    funcIdent = getIdent "store_half" binds
-
--- Interface contract:
---
---  void store_word(uint32_t addr, uint32_t value)
---
-storeWord :: Bindings -> CExpr -> CExpr -> CExpr -> CExpr
-storeWord binds core addr value = funcCall funcIdent [core, addr, value]
-  where
-    funcIdent = getIdent "store_word" binds
+store :: ValueSize -> Bindings -> CExpr -> CExpr -> CExpr -> CExpr
+store Byte = store' "store_byte"
+store Half = store' "store_half"
+store Word = store' "store_word"
 
 ------------------------------------------------------------------------
 

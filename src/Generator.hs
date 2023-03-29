@@ -62,6 +62,14 @@ evalE b (E.AShr e1 e2) = CBinary CShrOp (castTo (IF.int32 b) (evalE b e1)) (eval
 
 ------------------------------------------------------------------------
 
+-- Helper function for loading values from memory.
+doLoad :: IF.ValueSize -> CExpr -> E.Expr CExpr -> Bindings -> CExpr
+doLoad size core addr curBinds = IF.load size curBinds core (evalE curBinds addr)
+
+-- Helper function for storing values in memory.
+doStore :: IF.ValueSize -> CExpr -> E.Expr CExpr -> E.Expr CExpr -> Bindings -> CExpr
+doStore size core addr value curBinds = IF.store size curBinds core (evalE curBinds addr) (evalE curBinds value)
+
 -- Generate C code for the abstract semantics description of a given instruction from LibRISCV.
 -- Since C is an imperative programming language we need to be able to emit both statements
 -- and expressions. This is achieved by emitting statements as a "side effect" through
@@ -120,26 +128,17 @@ buildSemantics core binds req = snd $ run (S.runStatement (runReader binds (rein
         curBinds <- ask
         let expr = IF.writeReg curBinds core idx (evalE curBinds val)
         S.push (CBlockStmt $ CExpr (Just expr) undefNode)
-    gen (LoadByte addr) = do
-        curBinds <- ask
-        pure $ IF.loadByte curBinds core (evalE curBinds addr)
-    gen (LoadHalf addr) = do
-        curBinds <- ask
-        pure $ IF.loadHalf curBinds core (evalE curBinds addr)
-    gen (LoadWord addr) = do
-        curBinds <- ask
-        pure $ IF.loadWord curBinds core (evalE curBinds addr)
+    gen (LoadByte addr) = doLoad IF.Byte core addr <$> ask
+    gen (LoadHalf addr) = doLoad IF.Half core addr <$> ask
+    gen (LoadWord addr) = doLoad IF.Word core addr <$> ask
     gen (StoreByte addr value) = do
-        curBinds <- ask
-        let expr = IF.storeByte curBinds core (evalE curBinds addr) (evalE curBinds value)
+        expr <- doStore IF.Byte core addr value <$> ask
         S.push (CBlockStmt $ CExpr (Just expr) undefNode)
     gen (StoreHalf addr value) = do
-        curBinds <- ask
-        let expr = IF.storeHalf curBinds core (evalE curBinds addr) (evalE curBinds value)
+        expr <- doStore IF.Half core addr value <$> ask
         S.push (CBlockStmt $ CExpr (Just expr) undefNode)
     gen (StoreWord addr value) = do
-        curBinds <- ask
-        let expr = IF.storeWord curBinds core (evalE curBinds addr) (evalE curBinds value)
+        expr <- doStore IF.Word core addr value <$> ask
         S.push (CBlockStmt $ CExpr (Just expr) undefNode)
     gen ReadPC = do
         curBinds <- ask
