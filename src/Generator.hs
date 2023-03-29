@@ -98,7 +98,7 @@ buildSemantics core binds req = snd $ run (S.runStatement (runReader binds (rein
         gen ifTrue
         trueBlock <- S.pop
         let block = case fromJust trueBlock of
-                CBlockStmt c@(CCompound _ _ _) -> c
+                CBlockStmt c@(CCompound{}) -> c
                 e -> CCompound [] [e] undefNode
 
         curBinds <- ask
@@ -110,7 +110,7 @@ buildSemantics core binds req = snd $ run (S.runStatement (runReader binds (rein
         gen unlessTrue
         unlessBlock <- S.pop
         let block = case fromJust unlessBlock of
-                CBlockStmt c@(CCompound _ _ _) -> c
+                CBlockStmt c@(CCompound{}) -> c
                 e -> CCompound [] [e] undefNode
 
         curBinds <- ask
@@ -119,7 +119,7 @@ buildSemantics core binds req = snd $ run (S.runStatement (runReader binds (rein
                 CIf
                     cond
                     (CCompound [] [] undefNode)
-                    (Just $ block)
+                    (Just block)
                     undefNode
 
         S.push (CBlockStmt ifStat)
@@ -166,7 +166,7 @@ buildSemantics core binds req = snd $ run (S.runStatement (runReader binds (rein
         s2 <- S.pop
 
         S.push (CBlockStmt $ CCompound [] [fromJust s1, fromJust s2] undefNode)
-        pure $ e2
+        pure e2
 
 generate' :: Bindings -> [Name] -> InstructionType -> (CFunDef, [Name])
 generate' binds (nFunc : nCore : nInstr : nPC : ns) inst = (makeExecutor funcIdent funcArgs block, ns)
