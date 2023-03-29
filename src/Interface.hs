@@ -1,5 +1,21 @@
 -- This module defines the C API required to be implemented for the ISS.
-module Interface where
+module Interface (
+    uint32,
+    uint16,
+    uint8,
+    int32,
+    int16,
+    int8,
+    readReg,
+    writeReg,
+    readPC,
+    writePC,
+    ValueSize (..),
+    load,
+    store,
+    InstrPart (..),
+    instrPart,
+) where
 
 import Bindings
 import Language.C
