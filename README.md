@@ -74,3 +74,7 @@ More information is provided in the following publication which will be publishe
         year      = {2023},
         location  = {Turin, Italy}
     }
+
+## Acknowledgements
+
+This work was supported in part by the German Federal Ministry of Education and Research (BMBF) within the project EXCL under contract no. 01IW22002 and within the project Scale4Edge under contract no. 16ME0127.
