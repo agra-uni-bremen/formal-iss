@@ -15,7 +15,10 @@ To generate C code from the LibRISCV ISA model run the following command:
     $ cabal run formal-iss -- libriscv_generated.h
 
 If the file argument is omitted, then the C code is written to standard out.
-In order to integrate the generated instruction implementations with an existing RISC-V simulator the following interface needs to be provided:
+
+## Interface Model
+
+In order to integrate the generated instruction implementations with an existing RISC-V simulator the following interface needs to be implemented:
 
     #include <stdint.h>
 
@@ -45,6 +48,12 @@ In order to integrate the generated instruction implementations with an existing
     uint32_t instr_immU(void *instr);
     uint32_t instr_immJ(void *instr);
     uint32_t instr_shamt(void *instr);
+
+The functions described above are used by the generated code to abstract interaction with simulator-specific code.
+For more information, refer to the implementation of this interface for Spike and RISC-V VP:
+
+* https://github.com/nmeum/spike-libriscv/blob/libriscv/riscv/interface.h
+* https://github.com/agra-uni-bremen/libriscv-vp/blob/libriscv/vp/src/core/rv32/interface.h
 
 ## Development
 
