@@ -52,7 +52,7 @@ In order to integrate the generated instruction implementations with an existing
 The functions described above are used by the generated code to abstract interaction with simulator-specific code.
 For more information, refer to the implementation of this interface for Spike and RISC-V VP:
 
-* https://github.com/nmeum/spike-libriscv/blob/libriscv/riscv/interface.h
+* https://github.com/agra-uni-bremen/spike-libriscv/blob/libriscv/riscv/interface.h
 * https://github.com/agra-uni-bremen/libriscv-vp/blob/libriscv/vp/src/core/rv32/interface.h
 
 ## Development
