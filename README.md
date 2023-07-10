@@ -5,8 +5,8 @@ Generate a RISC-V instruction set simulator from a formal [LibRISCV](https://git
 ## About
 
 The code generator provided here is capable of generating a simulator-agnostic implementation of the RV32I instruction set.
-This generated code has been successfully integrated with [Spike](https://github.com/agra-uni-bremen/spike-libriscv) and [riscv-vp](https://github.com/agra-uni-bremen/libriscv-vp).
-More information on the code generator is provided in the publication *Minimally Invasive Generation of RISC-V Instruction Set Simulators from Formal ISA Models* which will be published in the proceedings of the 2023 Forum on Specification & Design Languages (FDL).
+This generated code has been successfully integrated with the existing RISC-V simulators [Spike](https://github.com/agra-uni-bremen/spike-libriscv) and [riscv-vp](https://github.com/agra-uni-bremen/libriscv-vp).
+More information on the code generator is provided in the publication *Minimally Invasive Generation of RISC-V Instruction Set Simulators from Formal ISA Models*, which will be published in the proceedings of the 2023 Forum on Specification & Design Languages (FDL).
 
 ## Usage
 
