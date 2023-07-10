@@ -1,11 +1,12 @@
 # formal-iss
 
-Generate an instruction set simulator (ISS) from a formal [LibRISCV](https://github.com/nmeum/libriscv) ISA model.
+Generate a RISC-V instruction set simulator from a formal [LibRISCV](https://github.com/agra-uni-bremen/libriscv) ISA model.
 
-## Status
+## About
 
-Currently, the implementation is capable of generating a significant subset of the RV32 base instruction set.
-This subset has already been integrated with the existing [riscv-vp](https://github.com/agra-uni-bremen/riscv-vp) in the [libriscv-vp](https://github.com/nmeum/libriscv-vp) repository.
+The code generator provided here is capable of generating a simulator-agnostic implementation of the RV32I instruction set.
+This generated code has been successfully integrated with [Spike](https://github.com/agra-uni-bremen/spike-libriscv) and [riscv-vp](https://github.com/agra-uni-bremen/libriscv-vp).
+More information on the code generator is provided in the publication *Minimally Invasive Generation of RISC-V Instruction Set Simulators from Formal ISA Models* which will be published in the proceedings of the 2023 Forum on Specification & Design Languages (FDL).
 
 ## Usage
 
@@ -52,3 +53,15 @@ For convince, a pre-commit Git hook for checking if files are properly formated 
 It can be activated using:
 
     $ git config --local core.hooksPath .githooks
+
+## How to Cite
+
+More information is provided in the following publication which will be published as part of the proceedings of the 2023 *Forum on Specification & Design Languages (FDL)*:
+
+    @inproceedings{tempel2023formal-iss,
+        title     = {Minimally Invasive Generation of RISC-V Instruction Set Simulators from Formal ISA Models},
+        booktitle = {2023 Forum on Specification & Design Languages (FDL)},
+        author    = {Sören Tempel and Tobias Brandt and Christoph Lüth and Rolf Drechsler},
+        year      = {2023},
+        location  = {Turin, Italy}
+    }
